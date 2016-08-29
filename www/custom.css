@@ -1,0 +1,72 @@
+@font-face {font-family: Eraser;
+src: url('fonts/EraserRegular.ttf');}
+
+@font-face {font-family: KG;
+src: url('fonts/KGTenThousandReasons.ttf');}
+
+@font-face {font-family: Chalkboard;
+src: url('fonts/Chalkboard.ttf');}
+
+@font-face {font-family: CrayonCrumble;
+src: url('fonts/DK Crayon Crumble.ttf');}
+
+@font-face {font-family: Rudiment;
+src: url('fonts/Rudiment.ttf');}
+
+.content-wrapper,
+.left-side {
+  background-color: #ffffff;
+}
+
+.main-header .logo {
+  font-family: Eraser;
+  /*font-weight: bold;*/
+  font-size: 30px;
+}
+
+       .skin-blue .main-header .logo {
+                              background-color: #000000;
+                              }
+
+        /* logo when hovered */
+        .skin-blue .main-header .logo:hover {
+                              background-color: #000000;
+                              }
+
+        /* navbar (rest of the header) */
+        .skin-blue .main-header .navbar {
+                              background-color: #000000;
+                              }        
+
+        /* main sidebar */
+        .skin-blue .main-sidebar {
+							  baackground-image: url("chalkboard-black.jpg");
+                              background-color: #131412;
+							  font-family: Eraser;
+                              }
+							  
+		.content-wrapper, .right-side{
+							  baackground: url("chalkboard-black.jpg");
+		}
+        /* active selected tab in the sidebarmenu */
+        .skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
+                              background-color: #fff;
+                              color: #000000;
+                              }
+
+        /* other links in the sidebarmenu */
+        .skin-blue .main-sidebar .sidebar .sidebar-menu a{
+                              background-color: #131412;
+                              color: #fff;
+                              }
+
+        /* other links in the sidebarmenu when hovered */
+         .skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
+                              background-color: #fff;
+                              color: #000000               
+           
+         }
+        /* toggle button when hovered  */                    
+         .skin-blue .main-header .navbar .sidebar-toggle:hover{
+                              background-color: #000000;
+                              }

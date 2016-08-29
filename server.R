@@ -6,12 +6,29 @@
 #
 
 library(shiny)
+library(shinysky)
 
 shinyServer(function(input, output, session) {
+  
+    UpdateTable <- function(data){
+      output$hot <- renderRHandsontable({
+        rhandsontable(data, stretchH = "all", height = 65)
+      })
+    }
+    
+    UpdateForm <- reactive({
+      entry <- hot.to.df(input$hot)
+      colnames(entry) <- names(GetTableMetadata()$fields[-1])
+      entry
+    })
+    
+  
+    responses <- CreateDefaultRecord()
     
     # input fields are treated as a group -- the row
     formData <- reactive({
-      sapply(names(GetTableMetadata()$fields), function(x) input[[x]])
+      MakeEntry(UpdateForm(),input$id)
+      #sapply(names(GetTableMetadata()$fields), function(x) input[[x]])
     })
     
     # Click "Submit" button -> save data
@@ -21,25 +38,29 @@ shinyServer(function(input, output, session) {
       } else {
         CreateData(formData())
         UpdateInputs(CreateDefaultRecord(), session)
+        UpdateTable(CreateDefaultRecord())
       }
     }, priority = 1)
     
     # Press "New" button -> display empty record
     observeEvent(input$new, {
       UpdateInputs(CreateDefaultRecord(), session)
+      UpdateTable(CreateDefaultRecord())
     })
     
     # Press "Delete" button -> delete from data
     observeEvent(input$delete, {
       DeleteData(formData())
       UpdateInputs(CreateDefaultRecord(), session)
+      UpdateTable(CreateDefaultRecord())
     }, priority = 1)
     
     # Select row in table -> show details in inputs
     observeEvent(input$responses_rows_selected, {
       if (length(input$responses_rows_selected) > 0) {
         data <- ReadData()[input$responses_rows_selected, ]
-        UpdateInputs(data, session)
+        UpdateInputs(data,session)
+        UpdateTable(data)
       }
       
     })
@@ -53,6 +74,14 @@ shinyServer(function(input, output, session) {
       ReadData()
     }, server = FALSE, selection = "single",
     colnames = unname(GetTableMetadata()$fields)[-1]
-    )     
+    ) 
+    
+
+    #initialize handsome table
+    UpdateTable(CreateDefaultRecord())
+    
+    
+
+    
 })   
 

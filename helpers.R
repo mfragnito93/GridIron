@@ -16,11 +16,11 @@ CreateDefaultRecord <- function() {
 }
 
 #Think this just updates the UI input
-UpdateInputs <- function(data, session) {
+UpdateID <- function(data, session) {
   updateTextInput(session, "id", value = unname(rownames(data)))
-  updateTextInput(session, "name", value = unname(data["name"]))
-  updateCheckboxInput(session, "used_shiny", value = as.logical(data["used_shiny"]))
-  updateSliderInput(session, "r_num_years", value = as.integer(data["r_num_years"]))
+  # updateTextInput(session, "name", value = unname(data["name"]))
+  # updateCheckboxInput(session, "used_shiny", value = as.logical(data["used_shiny"]))
+  # updateSliderInput(session, "r_num_years", value = as.integer(data["r_num_years"]))
 }
 
 
@@ -56,7 +56,7 @@ UpdateData <- function(data) {
   responses[row.names(responses) == row.names(data), ] <<- data
 }
 
-#delete a row
+#delete a row name
 DeleteData <- function(data) {
   responses <<- responses[row.names(responses) != unname(data["id"]), ]
 }
@@ -71,3 +71,12 @@ GetTableMetadata <- function() {
   return (result)
 }
 
+MakeEntry <- function(data,id){
+  datar<-as.list(data)
+  datar["id"] <- id
+  return(datar)
+}
+
+UpdateEntry <- function(data){
+  return(MakeEntry(data))
+}
