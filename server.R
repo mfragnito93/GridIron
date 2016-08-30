@@ -18,7 +18,7 @@ shinyServer(function(input, output, session) {
     
     UpdateForm <- reactive({
       entry <- hot.to.df(input$hot)
-      colnames(entry) <- names(GetTableMetadata()$fields[-1])
+      colnames(entry) <- names(GetMetadata(tableMeta)$fields[-1])
       entry
     })
     
@@ -37,21 +37,21 @@ shinyServer(function(input, output, session) {
         UpdateData(formData())
       } else {
         CreateData(formData())
-        UpdateID(CreateDefaultRecord(), session)
+        UpdateScoreboard(CreateDefaultRecord(), session)
         UpdateTable(CreateDefaultRecord())
       }
     }, priority = 1)
     
     # Press "New" button -> display empty record
     observeEvent(input$new, {
-      UpdateID(CreateDefaultRecord(), session)
+      UpdateScoreboard(CreateDefaultRecord(), session)
       UpdateTable(CreateDefaultRecord())
     })
     
     # Press "Delete" button -> delete from data
     observeEvent(input$delete, {
       DeleteData(formData())
-      UpdateID(CreateDefaultRecord(), session)
+      UpdateScoreboard(CreateDefaultRecord(), session)
       UpdateTable(CreateDefaultRecord())
     }, priority = 1)
     
@@ -59,7 +59,7 @@ shinyServer(function(input, output, session) {
     observeEvent(input$responses_rows_selected, {
       if (length(input$responses_rows_selected) > 0) {
         data <- ReadData()[input$responses_rows_selected, ]
-        UpdateID(data,session)
+        UpdateScoreboard(data,session)
         UpdateTable(data)
       }
       
@@ -73,7 +73,7 @@ shinyServer(function(input, output, session) {
       input$delete
       ReadData()
     }, server = FALSE, selection = "single",
-    colnames = unname(GetTableMetadata()$fields)[-1]
+    colnames = unname(GetMetadata(tableMeta)$fields)
     ) 
     
 

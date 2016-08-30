@@ -36,15 +36,22 @@ body <- dashboardBody(
     tabItem(tabName = "play_entry",
             fluidRow(
                      column(width = 1, offset=4,shinyjs::disabled(textInput("id", "PLAY NUMBER", "0"))),
-                     column(width = 1, offset=1, numericInput("zz", "DRIVE NUMBER", 0))
+                     column(width = 1, offset=1, numericInput("DRIVE", "DRIVE NUMBER", 0, min=1))
                      ),
             fluidRow(
-                     column(width=1, offset = 3,numericInput("zzz","OCEANSIDE", 0)),
-                     column(width=2, offset =1, numericInput("xxx","QTR", 0, width= "50%"),
-                            radioButtons("ww","",inline = TRUE, choices = c("OSIDE" = "OSIDE",
-                                                                                              "OPP" = "OPP"),width="100%")),
-                     column(width=1,numericInput("xx","OPPONENT", 0))
+                     column(width=1, offset = 3,numericInput("O_SCORE","OCEANSIDE", 0)),
+                     column(width=2, offset =1, numericInput("QTR","QTR", 1, width= "50%", min =1, max = 5),
+                            radioButtons("ODK","",inline = TRUE, choices = c("OSIDE" = "O","OPP" = "D"), selected = "O" ,width="100%")),
+                     column(width=1,numericInput("OPP_SCORE","OPPONENT", 0))
                             ),
+            fluidRow(
+              column(width=1, offset = 3,numericInput("DN","DOWN", 1, min = 1, max = 4)),
+              column(width=1, numericInput("DIST","DIST", 0, min =0)),
+              column(width=2, offset = 1, fluidRow(column(width=5,numericInput("YARD_LN","YDLN", 0, min =0, max= 50)),
+                     column(width=3,radioButtons("SIDE","Side", choices = c("-"="MINUS","+"="PLUS"), selected = "PLUS")),
+                     column(width=4,textInput("HASH","HASH", "M") ))
+                    )
+            ),
             fluidRow(
               box(width =12 ,
                   actionButton("submit", "Submit"),
