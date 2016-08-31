@@ -7,18 +7,21 @@
 
 library(shiny)
 library(shinysky)
+library(DT)
 
 shinyServer(function(input, output, session) {
   
     UpdateTable <- function(data){
       output$hot <- renderRHandsontable({
-        rhandsontable(data, stretchH = "all", height = 65)
+        rhandsontable(data[,names(GetMetadata(tableMeta)$fields)], stretchH = "all", height = 65)
       })
     }
     
-    UpdateForm <- reactive({
+    UpdateForm <- function()({
       entry <- hot.to.df(input$hot)
-      colnames(entry) <- names(GetMetadata(tableMeta)$fields[-1])
+      print(entry)
+      print(input$hot)
+      colnames(entry) <- names(GetMetadata(tableMeta)$fields)
       entry
     })
     
@@ -27,8 +30,9 @@ shinyServer(function(input, output, session) {
     
     # input fields are treated as a group -- the row
     formData <- reactive({
-      MakeEntry(UpdateForm(),input$id)
-      #sapply(names(GetTableMetadata()$fields), function(x) input[[x]])
+      table<-MakeEntry(UpdateForm())
+      scoreboard<-sapply(names(GetMetadata(scoreboardMeta)$fields), function(x) input[[x]])
+      c(scoreboard,table)
     })
     
     # Click "Submit" button -> save data
@@ -37,21 +41,21 @@ shinyServer(function(input, output, session) {
         UpdateData(formData())
       } else {
         CreateData(formData())
-        UpdateScoreboard(CreateDefaultRecord(), session)
+        UpdateScoreboard(ScoreBoardCalc(), session)
         UpdateTable(CreateDefaultRecord())
       }
     }, priority = 1)
     
     # Press "New" button -> display empty record
     observeEvent(input$new, {
-      UpdateScoreboard(CreateDefaultRecord(), session)
+      UpdateScoreboard(ScoreBoardCalc(), session)
       UpdateTable(CreateDefaultRecord())
     })
     
     # Press "Delete" button -> delete from data
     observeEvent(input$delete, {
       DeleteData(formData())
-      UpdateScoreboard(CreateDefaultRecord(), session)
+      UpdateScoreboard(ScoreBoardCalc(), session)
       UpdateTable(CreateDefaultRecord())
     }, priority = 1)
     
@@ -73,13 +77,13 @@ shinyServer(function(input, output, session) {
       input$delete
       ReadData()
     }, server = FALSE, selection = "single",
-    colnames = unname(GetMetadata(tableMeta)$fields)
+    colnames = unname(GetMetadata(meta)$fields),options=list(order = list(0, 'desc')),rownames = FALSE
     ) 
     
 
     #initialize handsome table
     UpdateTable(CreateDefaultRecord())
-    
+    UpdateScoreboard(ScoreBoardCalc(), session)
     
 
     

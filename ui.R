@@ -47,8 +47,9 @@ body <- dashboardBody(
             fluidRow(
               column(width=1, offset = 3,numericInput("DN","DOWN", 1, min = 1, max = 4)),
               column(width=1, numericInput("DIST","DIST", 0, min =0)),
-              column(width=2, offset = 1, fluidRow(column(width=5,numericInput("YARD_LN","YDLN", 0, min =0, max= 50)),
-                     column(width=3,radioButtons("SIDE","Side", choices = c("-"="MINUS","+"="PLUS"), selected = "PLUS")),
+              column(width=2, offset = 1, fluidRow(
+                     column(width=3,radioButtons("SIDE","", choices = c("-"="-","+"="+"), selected = "PLUS")),
+                     column(width=5,numericInput("YARD_LN","YDLN", 0, min =0, max= 50)),
                      column(width=4,textInput("HASH","HASH", "M") ))
                     )
             ),
