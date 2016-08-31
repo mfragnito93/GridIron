@@ -19,8 +19,6 @@ shinyServer(function(input, output, session) {
     
     UpdateForm <- function()({
       entry <- hot.to.df(input$hot)
-      print(entry)
-      print(input$hot)
       colnames(entry) <- names(GetMetadata(tableMeta)$fields)
       entry
     })
