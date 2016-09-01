@@ -75,7 +75,7 @@ shinyServer(function(input, output, session) {
       input$delete
       ReadData()
     }, server = FALSE, selection = "single",
-    colnames = unname(GetMetadata(meta)$fields),options=list(order = list(0, 'desc')),rownames = FALSE
+    colnames = unname(GetMetadata(meta)$fields),options=list(order = list(0, 'desc'), scrollX = TRUE),rownames = FALSE
     ) 
     
 

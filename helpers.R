@@ -1,4 +1,6 @@
 #Creates data frame with designated columns (name,used_shiny,years)
+library(reshape2)
+library(plotly)
 
 tableMeta <- c(OFF_FORM = "OFF FORM",
                PERSONNEL = "PERSONNEL", DEF_FORM = "DEF_FORM", PLAY_TYPE = "PLAY TYPE", 
@@ -36,7 +38,7 @@ CastData <- function(data) {
                       PERSONNEL = as.integer(data["PERSONNEL"]),
                       DEF_FORM = data["DEF_FORM"],
                       PLAY_TYPE = data["PLAY_TYPE"],
-                      RESULT = as.integer(data["RESULT"]),
+                      RESULT = data["RESULT"],
                       GN_LS = as.integer(data["GN_LS"]),
                       OFF_PLAY = data["OFF_PLAY"],
                       COVERAGE = data["COVERAGE"],
@@ -174,7 +176,7 @@ getSCORE <- function(data,team){
 }
 
 NextDN <- function(data){
-  if(getDIST(data)-getGNL(data)>=0) return(getDN(data)+1) else return(1)
+  if(getDIST(data)-getGNL(data)>0) return(getDN(data)+1) else return(1)
 }
 
 CalcDN <- function(data){
@@ -182,7 +184,7 @@ CalcDN <- function(data){
 }
 
 CalcDist <- function(data){
-  if(CalcDN(data)==1) return(10) else return(getDIST(data)-getGNL(data))
+  if(CalcDN(data)==1) return(min(10,CalcYardLn(data))) else return(min(getDIST(data)-getGNL(data),CalcYardLn(data)))
 }
 
 NextYardLn <- function(data){

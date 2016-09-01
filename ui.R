@@ -55,10 +55,10 @@ body <- dashboardBody(
             ),
             fluidRow(
               box(width =12 ,
+                  rHandsontableOutput("hot"),
                   actionButton("submit", "Submit"),
                   actionButton("new", "New"),
-                  actionButton("delete", "Delete"),
-                  rHandsontableOutput("hot")
+                  actionButton("delete", "Delete")
               ),
             fluidRow(
               box(width = 12, DT::dataTableOutput("responses")))
