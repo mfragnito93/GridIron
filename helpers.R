@@ -1,14 +1,18 @@
 #Creates data frame with designated columns (name,used_shiny,years)
 library(reshape2)
 library(plotly)
+library(dplyr)
 
 tableMeta <- c(OFF_FORM = "OFF FORM",
-               PERSONNEL = "PERSONNEL", DEF_FORM = "DEF_FORM", PLAY_TYPE = "PLAY TYPE", 
-                RESULT = "RESULT", GN_LS = "GN LS", OFF_PLAY = "OFF PLAY", COVERAGE = "COVERAGE",
-               BLITZ = "BLITZ", FRONT = "FRONT")
+               PERSONNEL = "PERS", DEF_FORM = "DEF FORM", PLAY_TYPE = "TYPE", 
+                RESULT = "RES", GN_LS = "GN LS", OFF_PLAY = "PLAY", COVERAGE = "COVGE",
+               BLITZ = "BLTZ", FRONT = "FRONT")
 
 scoreboardMeta <- c(id = "PLAY", ODK = "ODK", QTR ="QTR",DRIVE = "DRIVE", O_SCORE = "O SCORE", OPP_SCORE = "OPP SCORE", DN = "DN", DIST = "DIST", HASH = "HASH",
-                YARD_LN = "YARD LN", SIDE = "SIDE")
+                YARD_LN = "YDLN", SIDE = "SIDE")
+
+driveSummaryMeta <- c(id ="PLAY", DN="DN",DIST="DST",PERSONNEL="PERS",  OFF_FORM = "OFF FORM", PLAY_TYPE = "TYPE",
+                      OFF_PLAY = "PLAY",DEF_FORM = "DEF FORM",COVERAGE = "COVGE",FRONT = "FRONT",BLITZ = "BLTZ")
 
 meta <- c(scoreboardMeta,tableMeta)
 
@@ -58,7 +62,6 @@ CreateDefaultRecord <- function() {
 
 #Think this just updates the UI input
 UpdateScoreboard <- function(data, session) {
-  print(data)
   updateTextInput(session, "id", value = unname(data["id"]))
   updateRadioButtons(session, "ODK","",inline = TRUE, choices = c("OSIDE" = "O","OPP" = "D"), selected = as.character(data["ODK"]))
   updateNumericInput(session, "DRIVE", value = as.integer(data["DRIVE"]))
@@ -211,3 +214,85 @@ CalcODK <- function(data){
   } else return(getODK(data))
 }
 
+rpOnly <- function(data){
+  return(filter(data, PLAY_TYPE == "RUN" | PLAY_TYPE == "PASS"))
+}
+
+getTable <- function(data, x){
+  return(melt(table(rpOnly(data)[x])))
+}
+
+colSort <- function(data,col,desc = TRUE){
+  if(desc) return(data[order(-data[col]),]) else return(data[order(data[col]),]) 
+}
+
+
+getN <- function(data,col,top=TRUE,n=5){
+  return(head(colSort(data,cal,top),n))
+}
+
+plot.bars <- function(data){
+  colnames(data) <- c("group","x","y")
+  data$x<-as.factor(data$x)
+  data$group <- as.factor(data$group)
+  plot_ly(
+    data = data,
+    x = x,
+    y = y,
+    color = group,
+    type = "bar")
+}
+
+plot.donut <- function(data){
+  colnames(data) <- c("x","y")
+  data$x<-as.factor(data$x)
+  plot_ly(
+    data = data,
+    labels = x,
+    values = y,
+    marker = list(colors=c('#87B5FF','#03002B')),
+    type = "pie", hole = 0.6) %>% layout(showlegend = F)
+}
+
+makeWaterFall <- function(x){
+  df<-data.frame()
+for (play in 1:length(x$id)){
+  df[play,'id'] <- play
+  df[play,'start']<-if(x[1,"SIDE"] == "-") as.integer(x[1,"YARD_LN"]) else (50 - as.integer(x[1,"YARD_LN"])) + 50
+  df[play,'scrimmage']<-if(play==1) df[play,'start'] else df[play-1,'scrimmage']+df[play-1,'gain']+df[play-1,'loss']
+  df[play,'gain']<-if(as.integer(x[play,"GN_LS"])>=0) as.integer(x[play,"GN_LS"]) else 0
+  if(as.integer(x[play,"GN_LS"])<0){
+    df[play,'loss']<-as.integer(x[play,"GN_LS"]) 
+  }  else df[play,'loss'] <- 0
+}
+  return(melt(select(df,id,gain,loss,scrimmage,-start), id.vars = "id"))
+}
+
+plot.drive <- function(data, drive){
+a <- list(
+  title = ""
+)
+b <- list(
+  title =""
+)
+plot_ly(
+  data = makeWaterFall(drive(data,drive)),
+  x = id,
+  y = value,
+  color = variable,
+  colors =c('#ffffff','#87B5FF','#03002B'),
+  type = "bar") %>% layout(barmode = "stack", showlegend=F, xaxis = a, yaxis = b)
+}
+
+
+drive <- function(data,drive){
+  return(filter(rpOnly(data),DRIVE==as.integer(drive)))
+}
+
+driveSummary <- function(data,drive){
+  return(select(drive(data,drive),id,DN,DIST,PERSONNEL,OFF_FORM,PLAY_TYPE,OFF_PLAY,DEF_FORM,COVERAGE,FRONT,BLITZ))
+}
+
+countFactor <- function(data,col,val){
+  return(as.integer(filter(getTable(data, c(col)), Var1 == val)['value']))
+}

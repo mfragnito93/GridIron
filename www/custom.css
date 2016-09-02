@@ -62,11 +62,19 @@ src: url('fonts/Rudiment.ttf');}
 
         /* other links in the sidebarmenu when hovered */
          .skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
-                              background-color: #fff;
-                              color: #000000               
+                              background-color: #000000;
+                              color: #fff              
            
          }
         /* toggle button when hovered  */                    
          .skin-blue .main-header .navbar .sidebar-toggle:hover{
                               background-color: #000000;
+                              }
+                              
+        .skin-blue .main-sidebar .sidebar .sidebar-menu a {
+                              background-color: #131412;
+                              color: #fff;
+                              }
+        .col-sm-4 {
+                              width: 100%; 
                               }

@@ -1,6 +1,7 @@
 library(shiny)
 library(shinydashboard)
 library(rhandsontable)
+library(plotly)
 
 header <- dashboardHeader(title = "Gridiron") 
 
@@ -12,7 +13,23 @@ sidebar <- dashboardSidebar(
   ),
   sidebarMenu(
     menuItem("Play Entry",tabName = "play_entry", icon=icon("th-large")),
-    menuItem("Test", tabName = "test", icon = icon("th-large"))
+    menuItem("Drive Summary", tabName = "drive_summary", icon = icon("th-large")),
+    menuItem("Offense", icon = icon("th-large"),
+             menuSubItem("Summary", icon = icon("th-large"), tabName = "o_summary"),
+             menuSubItem("Down", icon = icon("th-large"), tabName = "o_down"),
+             menuSubItem("Run Pass", icon = icon("th-large"), tabName = "o_down"),
+             menuSubItem("Formation", icon = icon("th-large"), tabName = "o_formation"),
+             menuSubItem("Personnel", icon = icon("th-large"), tabName = "o_personnel"),
+             menuSubItem("Plays", icon = icon("th-large"), tabName = "o_play")
+             ),
+    menuItem("Defense", icon = icon("th-large"),
+             menuSubItem("Summary", icon = icon("th-large"), tabName = "d_summary"),
+             menuSubItem("Down", icon = icon("th-large"), tabName = "d_down"),
+             menuSubItem("Run Pass", icon = icon("th-large"), tabName = "d_down"),
+             menuSubItem("Formation", icon = icon("th-large"), tabName = "d_formation"),
+             menuSubItem("Personnel", icon = icon("th-large"), tabName = "d_personnel"),
+             menuSubItem("Plays", icon = icon("th-large"), tabName = "d_play")
+             )
   )
 )
 
@@ -54,17 +71,37 @@ body <- dashboardBody(
                     )
             ),
             fluidRow(
-              box(width =12 ,
+              column(width =12 ,
                   rHandsontableOutput("hot"),
                   actionButton("submit", "Submit"),
                   actionButton("new", "New"),
                   actionButton("delete", "Delete")
               ),
+              br(),
+              br(),
             fluidRow(
-              box(width = 12, DT::dataTableOutput("responses")))
+              column(width = 12, DT::dataTableOutput("responses")))
+            )),
+    tabItem(tabName = "drive_summary",
+            fluidRow(
+              column(width = 3, selectInput("drive", "SELECT A DRIVE", choices = sort(unique(responses$DRIVE),TRUE)))
+            ),
+            fluidRow(
+              column(width = 3, valueBoxOutput("ds_first_downs")),
+              column(width = 3, valueBoxOutput("ds_total_yards")),
+              column(width = 3, valueBoxOutput("ds_total_plays")),
+              column(width = 3, valueBoxOutput("ds_yards_play"))
+            ),
+            fluidRow(
+              column(width = 5, plotlyOutput("ds_rp")),
+              column(width = 7, plotlyOutput("drive_plot"))
+            ),
+            fluidRow(
+              column(12, DT::dataTableOutput("drive_sum"))
+            )
             ))
-))
-
+)
+ 
 
 
 dashboardPage(header,sidebar,body)

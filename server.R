@@ -8,9 +8,12 @@
 library(shiny)
 library(shinysky)
 library(DT)
+library(shinydashboard)
+library(plotly)
 
 shinyServer(function(input, output, session) {
   
+    ###PLAY ENTRY
     UpdateTable <- function(data){
       output$hot <- renderRHandsontable({
         rhandsontable(data[,names(GetMetadata(tableMeta)$fields)], stretchH = "all", height = 65)
@@ -83,7 +86,60 @@ shinyServer(function(input, output, session) {
     UpdateTable(CreateDefaultRecord())
     UpdateScoreboard(ScoreBoardCalc(), session)
     
-
+    ###DRIVE SUMMARY
+    drive_summary <- reactive({
+      driveSummary(ReadData(),input$drive)
+    })
+    
+    theDrive <- reactive({
+      drive(ReadData(),input$drive)
+    })
+    
+    
+    output$drive_sum <- DT::renderDataTable({
+      drive_summary()
+    }, server = FALSE, selection = "single",
+    colnames = unname(GetMetadata(driveSummaryMeta)$fields),options=list(order = list(0, 'asc'), scrollX = FALSE, autoWidth = TRUE),rownames = FALSE
+    ) 
+    
+    #number of first downs
+    output$ds_first_downs <-renderValueBox({
+      valueBox(
+        countFactor(drive_summary(),"DN",1)-1, "FIRST DOWNS", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    output$ds_total_plays <- renderValueBox({
+      valueBox(
+        length(drive_summary()[,1]), "TOTAL PLAYS", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    output$ds_total_yards <- renderValueBox({
+      valueBox(
+        sum(theDrive()$GN_LS), "TOTAL YARDS", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    output$ds_yards_play <- renderValueBox({
+      valueBox(
+        round(sum(theDrive()$GN_LS)/length(drive_summary()[,1]),2), "YARDS PER PLAY", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    output$ds_rp <- renderPlotly({
+      plot.donut(getTable(drive_summary(),"PLAY_TYPE"))
+    })
+    
+    output$drive_plot<-renderPlotly({
+      plot.drive(theDrive(),input$drive)
+    })
+    
+    
     
 })   
 
