@@ -37,21 +37,21 @@ shinyServer(function(input, output, session) {
         UpdateData(formData())
       } else {
         CreateData(formData())
-        UpdateInputs(CreateDefaultRecord(), session)
+        UpdateID(CreateDefaultRecord(), session)
         UpdateTable(CreateDefaultRecord())
       }
     }, priority = 1)
     
     # Press "New" button -> display empty record
     observeEvent(input$new, {
-      UpdateInputs(CreateDefaultRecord(), session)
+      UpdateID(CreateDefaultRecord(), session)
       UpdateTable(CreateDefaultRecord())
     })
     
     # Press "Delete" button -> delete from data
     observeEvent(input$delete, {
       DeleteData(formData())
-      UpdateInputs(CreateDefaultRecord(), session)
+      UpdateID(CreateDefaultRecord(), session)
       UpdateTable(CreateDefaultRecord())
     }, priority = 1)
     
@@ -59,7 +59,7 @@ shinyServer(function(input, output, session) {
     observeEvent(input$responses_rows_selected, {
       if (length(input$responses_rows_selected) > 0) {
         data <- ReadData()[input$responses_rows_selected, ]
-        UpdateInputs(data,session)
+        UpdateID(data,session)
         UpdateTable(data)
       }
       

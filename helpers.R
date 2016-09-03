@@ -1,8 +1,31 @@
 #Creates data frame with designated columns (name,used_shiny,years)
+
+meta <- c(id ="Id", ODK = "ODK", QTR = "QTR", O_SCORE = "O SCORE",
+          OPP_SCORE = "OPP SCORE", DN = "DN", DIST = "DIST",
+          HASH = "HASH", YARD_LN = "YARD LN", OFF_FORM = "OFF FORM",
+          PERSONNEL = "PERSONNEL", PLAY_TYPE = "PLAY TYPE", 
+          OFF_PLAY = "OFF PLAY", GN_LS = "GN LS")
+
+default <- list(id ="0", ODK = "", QTR = 1, O_SCORE = 0,
+             OPP_SCORE = 0, DN = 1, DIST = 10,
+             HASH = "M", YARD_LN = 20, OFF_FORM = "",
+             PERSONNEL = 0, PLAY_TYPE = "",
+             OFF_PLAY = "", GN_LS = 0)
+
 CastData <- function(data) {
-  datar <- data.frame(name = data["name"], 
-                      used_shiny = as.logical(data["used_shiny"]), 
-                      r_num_years = as.integer(data["r_num_years"]),
+  datar <- data.frame(ODK = data["ODK"], 
+                      QTR = as.integer(data["QTR"]),
+                      O_SCORE = as.integer(data["O_SCORE"]),
+                      OPP_SCORE = as.integer(data["OPP_SCORE"]),
+                      DN = as.integer(data["DN"]),
+                      DIST = as.integer(data["DIST"]),
+                      HASH = data["HASH"],
+                      YARD_LN = as.integer(data["YARD_LN"]),
+                      OFF_FORM = data["OFF_FORM"],
+                      PERSONNEL = as.integer(data["PERSONNEL"]),
+                      PLAY_TYPE = data["PLAY_TYPE"],
+                      OFF_PLAY = data["OFF_PLAY"],
+                      GN_LS = as.integer(data["GN_LS"]),
                       stringsAsFactors = FALSE)
   
   rownames(datar) <- data["id"]
@@ -11,7 +34,7 @@ CastData <- function(data) {
 
 #returns the deafualt dataframe using castData
 CreateDefaultRecord <- function() {
-  mydefault <- CastData(list(id = "0", name = "", used_shiny = FALSE, r_num_years = 2))
+  mydefault <- CastData(default)
   return (mydefault)
 }
 
@@ -63,10 +86,7 @@ DeleteData <- function(data) {
 
 #returns friendly meta data
 GetTableMetadata <- function() {
-  fields <- c(id = "Id", 
-              name = "Name", 
-              used_shiny = "Used Shiny", 
-              r_num_years = "R Years")
+  fields <- meta
   result <- list(fields = fields)
   return (result)
 }

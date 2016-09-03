@@ -34,11 +34,19 @@ body <- dashboardBody(
   #action buttons
   tabItems(
     tabItem(tabName = "play_entry",
-            h2("Play Entry"),
+            fluidRow(
+                     column(width = 1, offset=4,shinyjs::disabled(textInput("id", "PLAY NUMBER", "0"))),
+                     column(width = 1, offset=1, numericInput("zz", "DRIVE NUMBER", 0))
+                     ),
+            fluidRow(
+                     column(width=1, offset = 3,numericInput("zzz","OCEANSIDE", 0)),
+                     column(width=2, offset =1, numericInput("xxx","QTR", 0, width= "50%"),
+                            radioButtons("ww","",inline = TRUE, choices = c("OSIDE" = "OSIDE",
+                                                                                              "OPP" = "OPP"),width="100%")),
+                     column(width=1,numericInput("xx","OPPONENT", 0))
+                            ),
             fluidRow(
               box(width =12 ,
-                  h2("Play Number"),
-                  shinyjs::disabled(textInput("id", "Id", "0")),
                   actionButton("submit", "Submit"),
                   actionButton("new", "New"),
                   actionButton("delete", "Delete"),
