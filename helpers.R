@@ -3,6 +3,8 @@ library(reshape2)
 library(plotly)
 library(dplyr)
 
+teamColors <- c('#87B5FF','#010014','#D3D3D3','#03002B', '#0C00FF', '#C9C9C9')
+
 tableMeta <- c(OFF_FORM = "OFF FORM",
                PERSONNEL = "PERS", DEF_FORM = "DEF FORM", PLAY_TYPE = "TYPE", 
                 RESULT = "RES", GN_LS = "GN LS", OFF_PLAY = "PLAY", COVERAGE = "COVGE",
@@ -72,7 +74,7 @@ UpdateScoreboard <- function(data, session) {
   updateNumericInput(session, "DIST", value = as.integer(data["DIST"]))
   updateNumericInput(session, "YARD_LN", value = as.integer(data["YARD_LN"]))
   updateTextInput(session, "HASH", value = unname(data["HASH"]))
-  updateRadioButtons(session, "SIDE","Side",choices = c("-"="-","+"="+"), selected = as.character(data["SIDE"]))
+  updateRadioButtons(session, "SIDE","",choices = c("-"="-","+"="+"), selected = as.character(data["SIDE"]))
   }
 
 
@@ -228,10 +230,10 @@ colSort <- function(data,col,desc = TRUE){
 
 
 getN <- function(data,col,top=TRUE,n=5){
-  return(head(colSort(data,cal,top),n))
+  return(head(colSort(data,col,top),n))
 }
 
-plot.bars <- function(data){
+plot.bars <- function(data,stack = "group"){
   colnames(data) <- c("group","x","y")
   data$x<-as.factor(data$x)
   data$group <- as.factor(data$group)
@@ -240,7 +242,20 @@ plot.bars <- function(data){
     x = x,
     y = y,
     color = group,
-    type = "bar")
+    colors=teamColors[1:length(unique(data$group))],
+    type = "bar") %>% layout(barmode = stack)
+}
+
+plot.oneBar<- function(data){
+  colnames(data) <- c("x","y")
+  plot_ly(
+    data = data,
+    x = x,
+    y = y,
+    color = y,
+    type = "bar",
+    marker = list(color = c('#010014'))
+  )
 }
 
 plot.donut <- function(data){
@@ -250,7 +265,7 @@ plot.donut <- function(data){
     data = data,
     labels = x,
     values = y,
-    marker = list(colors=c('#87B5FF','#03002B')),
+    marker = list(colors=teamColors[1:length(unique(data$x))]),
     type = "pie", hole = 0.6) %>% layout(showlegend = F)
 }
 
@@ -280,7 +295,7 @@ plot_ly(
   x = id,
   y = value,
   color = variable,
-  colors =c('#ffffff','#87B5FF','#03002B'),
+  colors =c('#ffffff','#87B5FF','#010014'),
   type = "bar") %>% layout(barmode = "stack", showlegend=F, xaxis = a, yaxis = b)
 }
 
@@ -295,4 +310,28 @@ driveSummary <- function(data,drive){
 
 countFactor <- function(data,col,val){
   return(as.integer(filter(getTable(data, c(col)), Var1 == val)['value']))
+}
+
+dnConv <- function(data,down){
+  third <- 0
+  convert <- 0
+  for (drive in unique(data$DRIVE)){
+    for (play in 1:length(filter(data,DRIVE==drive)$id)){
+      if(filter(data,DRIVE==drive)[play,"DN"]==down){
+        third <- third + 1 
+        if(filter(data,DRIVE==drive)[min(play+1,length(filter(data,DRIVE==drive)$id)),"DN"]==1){
+          convert <- convert + 1 
+        } 
+      }
+    }
+  }
+  return(convert/third)
+}
+
+addDistBucket <- function(data){
+  for (play in 1:length(data[,1])){
+    dist <- data[play,'DIST']
+    data[play,'DIST_BUCKET'] <- if (dist<4) "SHORT" else if (dist<8) "MEDIUM" else if(dist<13) "LONG" else "+12"
+  }
+  return(data)
 }

@@ -52,22 +52,23 @@ body <- dashboardBody(
   tabItems(
     tabItem(tabName = "play_entry",
             fluidRow(
-                     column(width = 1, offset=4,shinyjs::disabled(textInput("id", "PLAY NUMBER", "0"))),
-                     column(width = 1, offset=1, numericInput("DRIVE", "DRIVE NUMBER", 0, min=1))
+                     column(width = 2, offset=3,shinyjs::disabled(textInput("id", "PLAY NUMBER", "0"))),
+                     column(width = 2, offset=1, numericInput("DRIVE", "DRIVE NUMBER", 0, min=1))
                      ),
             fluidRow(
-                     column(width=1, offset = 3,numericInput("O_SCORE","OCEANSIDE", 0)),
+                     column(width=2, offset = 2,numericInput("O_SCORE","OCEANSIDE", 0)),
                      column(width=2, offset =1, numericInput("QTR","QTR", 1, width= "50%", min =1, max = 5),
                             radioButtons("ODK","",inline = TRUE, choices = c("OSIDE" = "O","OPP" = "D"), selected = "O" ,width="100%")),
-                     column(width=1,numericInput("OPP_SCORE","OPPONENT", 0))
+                     column(width=2,numericInput("OPP_SCORE","OPPONENT", 0))
                             ),
             fluidRow(
               column(width=1, offset = 3,numericInput("DN","DOWN", 1, min = 1, max = 4)),
               column(width=1, numericInput("DIST","DIST", 0, min =0)),
-              column(width=2, offset = 1, fluidRow(
-                     column(width=3,radioButtons("SIDE","", choices = c("-"="-","+"="+"), selected = "PLUS")),
-                     column(width=5,numericInput("YARD_LN","YDLN", 0, min =0, max= 50)),
-                     column(width=4,textInput("HASH","HASH", "M") ))
+              column(width=3, offset = 1, fluidRow(
+                     column(width=2,radioButtons("SIDE",label = "", choices = c("-"="-","+"="+"), selected = "PLUS")),
+                     column(width=9,numericInput("YARD_LN","YDLN", 0, min =0, max= 50)),
+                     column(width=4,textInput("HASH","HASH", "M") )
+                     )
                     )
             ),
             fluidRow(
@@ -99,7 +100,57 @@ body <- dashboardBody(
             fluidRow(
               column(12, DT::dataTableOutput("drive_sum"))
             )
+            ),
+    tabItem(tabName = "o_summary",
+            fluidRow(h1("Oceanside Offense"),
+              column(width = 9, column(width = 12, plotlyOutput("os_rp")),
+                                column(width = 12, plotlyOutput("os_top_plays")),
+                                column(width = 12, plotlyOutput("os_top_pers")),
+                                column(width = 12, plotlyOutput("os_top_forms"))
+                     ),
+              column(width = 3, br(),br(),br(),
+                                column(width = 12, valueBoxOutput("os_first_downs")),
+                                column(width = 12, valueBoxOutput("os_total_yards")),
+                                column(width = 12, valueBoxOutput("os_total_plays")),
+                                column(width = 12, valueBoxOutput("os_yards_play")),
+                                column(width = 12, valueBoxOutput("os_run_yards")),
+                                column(width = 12, valueBoxOutput("os_pass_yards")),
+                                column(width = 12, valueBoxOutput("os_run_yards_play")),
+                                column(width = 12, valueBoxOutput("os_pass_yards_play")),
+                                column(width = 12, valueBoxOutput("os_completion_pct")),
+                                column(width = 12, valueBoxOutput("os_drives")),
+                                column(width = 12, valueBoxOutput("os_third_conv")),
+                                column(width = 12, valueBoxOutput("os_fourth_conv"))
+                     )
+              ),
+              fluidRow(h1("Opponent Defense"),
+                  column(width = 12, plotlyOutput("os_def_form"),
+                                     plotlyOutput("os_coverage"),
+                                     plotlyOutput("os_front"),
+                                     plotlyOutput("os_blitz")
+                        )
+                      )
+              
+            ),
+    tabItem(tabName = "o_down", 
+               fluidRow(column(width = 12, h1("Down and Distance Analysis"),
+                               tabsetPanel(
+                                  tabPanel("Formation",
+                                            plotlyOutput("od_def_form_dn"),
+                                            selectInput("def_form_dn", "SELECT A DOWN", choices = c("1","2","3","4")),
+                                            plotlyOutput("od_def_form_dist")),
+                                  tabPanel("Coverage",
+                                            plotlyOutput("od_coverage_dn")),
+                                  tabPanel("Front",
+                                           plotlyOutput("od_front_dn")
+                                           ),
+                                  tabPanel("Blitz", 
+                                           plotlyOutput("od_blitz_dn"))
+                                  )
+                       )
+                      
             ))
+    )
 )
  
 

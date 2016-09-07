@@ -25,23 +25,23 @@ src: url('fonts/Rudiment.ttf');}
 }
 
        .skin-blue .main-header .logo {
-                              background-color: #000000;
+                              background-color: #010014;
                               }
 
         /* logo when hovered */
         .skin-blue .main-header .logo:hover {
-                              background-color: #000000;
+                              background-color: #010014;
                               }
 
         /* navbar (rest of the header) */
         .skin-blue .main-header .navbar {
-                              background-color: #000000;
+                              background-color: #010014;
                               }        
 
         /* main sidebar */
         .skin-blue .main-sidebar {
 							  baackground-image: url("chalkboard-black.jpg");
-                              background-color: #131412;
+                              background-color: #010014;
 							  font-family: Eraser;
                               }
 							  
@@ -51,30 +51,35 @@ src: url('fonts/Rudiment.ttf');}
         /* active selected tab in the sidebarmenu */
         .skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
                               background-color: #fff;
-                              color: #000000;
+                              color: #010014;
                               }
 
         /* other links in the sidebarmenu */
         .skin-blue .main-sidebar .sidebar .sidebar-menu a{
-                              background-color: #131412;
+                              background-color: #010014;
                               color: #fff;
                               }
 
         /* other links in the sidebarmenu when hovered */
          .skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
-                              background-color: #000000;
+                              background-color: #010014;
                               color: #fff              
            
          }
         /* toggle button when hovered  */                    
          .skin-blue .main-header .navbar .sidebar-toggle:hover{
-                              background-color: #000000;
+                              background-color: #010014;
                               }
                               
         .skin-blue .main-sidebar .sidebar .sidebar-menu a {
-                              background-color: #131412;
+                              background-color: #010014;
                               color: #fff;
                               }
         .col-sm-4 {
                               width: 100%; 
+                        
                               }
+                              
+        .bg-black {
+                              background-color: #010014!important;
+                                      }
