@@ -55,7 +55,7 @@ body <- dashboardBody(
                      ),
             fluidRow(
                      column(width=2, offset = 2,numericInput("O_SCORE","OCEANSIDE", 0)),
-                     column(width=2, offset =1, numericInput("QTR","QTR", 1, width= "50%", min =1, max = 5),
+                     column(width=3, offset = 1,numericInput("QTR","QTR", 1, width= "50%", min =1, max = 5),
                             radioButtons("ODK","",inline = TRUE, choices = c("OSIDE" = "O","OPP" = "D"), selected = "O" ,width="100%")),
                      column(width=2,numericInput("OPP_SCORE","OPPONENT", 0))
                             ),
@@ -64,8 +64,7 @@ body <- dashboardBody(
               column(width=1, numericInput("DIST","DIST", 0, min =0)),
               column(width=3, offset = 1, fluidRow(
                      column(width=2,radioButtons("SIDE",label = "", choices = c("-"="-","+"="+"), selected = "PLUS")),
-                     column(width=9,numericInput("YARD_LN","YDLN", 0, min =0, max= 50)),
-                     column(width=4,textInput("HASH","HASH", "M") )
+                     column(width=9,numericInput("YARD_LN","YDLN", 0, min =0, max= 50))
                      )
                     )
             ),
@@ -143,7 +142,7 @@ body <- dashboardBody(
                                   tabPanel("Coverage",
                                             plotlyOutput("od_coverage_dn"),
                                             selectInput("coverage_dn", "SELECT A DOWN", choices = c("1","2","3","4")),
-                                            plotlyOutput("coverage_dist")),
+                                            plotlyOutput("od_coverage_dist")),
                                   tabPanel("Front",
                                             plotlyOutput("od_front_dn"),
                                             selectInput("front_dn", "SELECT A DOWN", choices = c("1","2","3","4")),
@@ -229,7 +228,18 @@ body <- dashboardBody(
                                                      plotlyOutput("operf_form_blitzes")),
                                               column(width = 6, plotlyOutput("operf_form_coverage"),
                                                      plotlyOutput("operf_form_front")))),
-                              tabPanel("Play")
+                              tabPanel("Play",
+                                       column(width =12,
+                                              selectInput("operf_play", "SELECT A PLAY", choices = unique(filter(rpOnly(responses),ODK=="O")$OFF_PLAY)),
+                                              fluidRow(column(width = 3, valueBoxOutput("operf_play_type")),
+                                                       column(width = 3, valueBoxOutput("operf_play_ran")),
+                                                       column(width = 3, valueBoxOutput("operf_play_yards")),
+                                                       column(width = 3, valueBoxOutput("operf_play_avg"))
+                                              ),
+                                              column(width = 6, plotlyOutput("operf_play_form"),
+                                                                plotlyOutput("operf_play_blitzes")),
+                                              column(width = 6, plotlyOutput("operf_play_coverage"),
+                                                                plotlyOutput("operf_play_front"))))
                             )
                      )
             )

@@ -5,12 +5,12 @@ library(dplyr)
 
 teamColors <- c('#87B5FF','#010014','#D3D3D3','#03002B', '#0C00FF', '#C9C9C9')
 
-tableMeta <- c(OFF_FORM = "OFF FORM",
+tableMeta <- c(HASH = "HASH", OFF_FORM = "OFF FORM",
                PERSONNEL = "PERS", DEF_FORM = "DEF FORM", PLAY_TYPE = "TYPE", 
                 RESULT = "RES", GN_LS = "GN LS", OFF_PLAY = "PLAY", COVERAGE = "COVGE",
                BLITZ = "BLTZ", FRONT = "FRONT")
 
-scoreboardMeta <- c(id = "PLAY", ODK = "ODK", QTR ="QTR",DRIVE = "DRIVE", O_SCORE = "O SCORE", OPP_SCORE = "OPP SCORE", DN = "DN", DIST = "DIST", HASH = "HASH",
+scoreboardMeta <- c(id = "PLAY", ODK = "ODK", QTR ="QTR",DRIVE = "DRIVE", O_SCORE = "O SCORE", OPP_SCORE = "OPP SCORE", DN = "DN", DIST = "DIST",
                 YARD_LN = "YDLN", SIDE = "SIDE")
 
 driveSummaryMeta <- c(id ="PLAY", DN="DN",DIST="DST",PERSONNEL="PERS",  OFF_FORM = "OFF FORM", PLAY_TYPE = "TYPE",
@@ -20,9 +20,9 @@ meta <- c(scoreboardMeta,tableMeta)
 
 scoreboardDefault <- list(id ="0", ODK = "O", QTR = 1, DRIVE = 1, O_SCORE = 0,
                            OPP_SCORE = 0, DN = 1, DIST = 10,
-                           HASH = "M", YARD_LN = 20, SIDE = "-")
+                           YARD_LN = 20, SIDE = "-")
 
-tableDefault <- list(OFF_FORM = "", PERSONNEL = 0, DEF_FORM = "", PLAY_TYPE = "", RESULT ="",  GN_LS = 0,  OFF_PLAY = "", COVERAGE = "",
+tableDefault <- list(HASH = "M", OFF_FORM = "", PERSONNEL = 0, DEF_FORM = "", PLAY_TYPE = "", RESULT ="",  GN_LS = 0,  OFF_PLAY = "", COVERAGE = "",
                      BLITZ = "", FRONT = "")
 
 default <- c(scoreboardDefault,tableDefault)

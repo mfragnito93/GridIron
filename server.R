@@ -563,5 +563,52 @@ shinyServer(function(input, output, session) {
     output$operf_form_front <- renderPlotly({
       plot.bars(rpYardsAvgByFactor(filter(oSide(), OFF_FORM == input$operf_form),"FRONT"), title = "Average YDs Against Fronts", stack = "stack")
     })
+    
+    ##PLAY
+    output$operf_play_type <- renderValueBox({
+      valueBox(
+        filter(oSide(), OFF_PLAY == input$operf_play)[1,"PLAY_TYPE"], "PLAY TYPE", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    output$operf_play_ran <- renderValueBox({
+      valueBox(
+        length(filter(oSide(), OFF_PLAY == input$operf_play)$GN_LS), "TOTAL RAN", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    
+    output$operf_play_yards <- renderValueBox({
+      valueBox(
+        sum(filter(oSide(),OFF_PLAY == input$operf_play)$GN_LS), "TOTAL YDS", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    output$operf_play_avg <- renderValueBox({
+      valueBox(
+        round(mean(filter(oSide(),OFF_PLAY == input$operf_play)$GN_LS),2), "YDS/PLAY", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    
+    output$operf_play_form <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(filter(oSide(), OFF_PLAY == input$operf_play),"DEF_FORM"), title = "Average YDs Against Def Formations", showLegend = F)
+    })
+    
+    output$operf_play_coverage <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(filter(oSide(), OFF_PLAY == input$operf_play),"COVERAGE"), title = "Average YDs Against Coverages", showLegend = F)
+    })
+    
+    output$operf_play_blitzes <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(filter(oSide(), OFF_PLAY == input$operf_play),"BLITZ"), title = "Average YDs Against Blitzes", showLegend = F)
+    })
+    
+    output$operf_play_front <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(filter(oSide(), OFF_PLAY == input$operf_play),"FRONT"), title = "Average YDs Against Fronts", showLegend = F)
+    })
 })   
 
