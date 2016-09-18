@@ -10,20 +10,22 @@ tableMeta <- c(HASH = "HASH", OFF_FORM = "OFF FORM",
                 RESULT = "RES", GN_LS = "GN LS", OFF_PLAY = "PLAY", COVERAGE = "COVGE",
                BLITZ = "BLTZ", FRONT = "FRONT")
 
+d_tableMeta <- c(tableMeta, DEF_PLAY="DEF PLAY")
+
 scoreboardMeta <- c(id = "PLAY", ODK = "ODK", QTR ="QTR",DRIVE = "DRIVE", O_SCORE = "O SCORE", OPP_SCORE = "OPP SCORE", DN = "DN", DIST = "DIST",
                 YARD_LN = "YDLN", SIDE = "SIDE")
 
 driveSummaryMeta <- c(id ="PLAY", DN="DN",DIST="DST",PERSONNEL="PERS",  OFF_FORM = "OFF FORM", PLAY_TYPE = "TYPE",
                       OFF_PLAY = "PLAY",DEF_FORM = "DEF FORM",COVERAGE = "COVGE",FRONT = "FRONT",BLITZ = "BLTZ")
 
-meta <- c(scoreboardMeta,tableMeta)
+meta <- c(scoreboardMeta,d_tableMeta)
 
 scoreboardDefault <- list(id ="0", ODK = "O", QTR = 1, DRIVE = 1, O_SCORE = 0,
                            OPP_SCORE = 0, DN = 1, DIST = 10,
                            YARD_LN = 20, SIDE = "-")
 
-tableDefault <- list(HASH = "M", OFF_FORM = "", PERSONNEL = 0, DEF_FORM = "", PLAY_TYPE = "", RESULT ="",  GN_LS = 0,  OFF_PLAY = "", COVERAGE = "",
-                     BLITZ = "", FRONT = "")
+tableDefault <- list(HASH = "M", OFF_FORM = "", PERSONNEL = "", DEF_FORM = "", PLAY_TYPE = "", RESULT ="",  GN_LS = 0,  OFF_PLAY = "", COVERAGE = "",
+                     BLITZ = "", FRONT = "", DEF_PLAY = "")
 
 default <- c(scoreboardDefault,tableDefault)
 
@@ -50,6 +52,7 @@ CastData <- function(data) {
                       COVERAGE = data["COVERAGE"],
                       BLITZ = data["BLITZ"],
                       FRONT = data["FRONT"],
+                      DEF_PLAY = data["DEF_PLAY"],
                       stringsAsFactors = FALSE)
   
   rownames(datar) <- data["id"]
@@ -65,7 +68,7 @@ CreateDefaultRecord <- function() {
 #Think this just updates the UI input
 UpdateScoreboard <- function(data, session) {
   updateTextInput(session, "id", value = unname(data["id"]))
-  updateRadioButtons(session, "ODK","",inline = TRUE, choices = c("OSIDE" = "O","OPP" = "D"), selected = as.character(data["ODK"]))
+  updateRadioButtons(session, "ODK","SIDE",choices = c("O" = "O","D" = "D"), selected = as.character(data["ODK"]))
   updateNumericInput(session, "DRIVE", value = as.integer(data["DRIVE"]))
   updateNumericInput(session, "O_SCORE", value = as.integer(data["O_SCORE"]))
   updateNumericInput(session, "QTR", value = as.integer(data["QTR"]))
@@ -73,8 +76,22 @@ UpdateScoreboard <- function(data, session) {
   updateNumericInput(session, "DN", value = as.integer(data["DN"]))
   updateNumericInput(session, "DIST", value = as.integer(data["DIST"]))
   updateNumericInput(session, "YARD_LN", value = as.integer(data["YARD_LN"]))
-  updateTextInput(session, "HASH", value = unname(data["HASH"]))
   updateRadioButtons(session, "SIDE","",choices = c("-"="-","+"="+"), selected = as.character(data["SIDE"]))
+  updateTextInput(session, "HASH", value = unname(data["HASH"]))
+}
+
+UpdateTable <- function(data, session){
+  updateTextInput(session, "PERSONNEL", value = unname(data["PERSONNEL"]))
+  updateTextInput(session, "OFF_FORM", value = unname(data["OFF_FORM"]))
+  updateTextInput(session, "DEF_FORM", value = unname(data["DEF_FORM"]))
+  updateTextInput(session, "PLAY_TYPE", value = unname(data["PLAY_TYPE"]))
+  updateTextInput(session, "RESULT", value = unname(data["RESULT"]))
+  updateTextInput(session, "GN_LS", value = unname(data["GN_LS"]))
+  updateTextInput(session, "OFF_PLAY", value = unname(data["OFF_PLAY"]))
+  updateTextInput(session, "DEF_PLAY", value = unname(data["DEF_PLAY"]))
+  updateTextInput(session, "COVERAGE", value = unname(data["COVERAGE"]))
+  updateTextInput(session, "BLITZ", value = unname(data["BLITZ"]))
+  updateTextInput(session, "FRONT", value = unname(data["FRONT"]))
   }
 
 
@@ -189,7 +206,11 @@ CalcDN <- function(data){
 }
 
 CalcDist <- function(data){
-  if(CalcDN(data)==1) return(min(10,CalcYardLn(data))) else return(min(getDIST(data)-getGNL(data),CalcYardLn(data)))
+  if(CalcDN(data)==1) {
+    if(getSIDE(data)=="+") return(min(10,CalcYardLn(data))) else return(10)
+  }  else {
+    if(getSIDE(data) =="+") return(min(getDIST(data)-getGNL(data),CalcYardLn(data))) else return(getDIST(data)-getGNL(data))
+  }
 }
 
 NextYardLn <- function(data){
@@ -235,7 +256,8 @@ getN <- function(data,col,top=TRUE,n=5){
 
 plot.bars <- function(data,stack = "group", title = "", xaxis = "", yaxis = "", showLegend = T){
   a <- list(
-    title = xaxis
+    title = xaxis,
+    type = 'category'
   )
   b <- list(
     title = yaxis
@@ -254,7 +276,8 @@ plot.bars <- function(data,stack = "group", title = "", xaxis = "", yaxis = "", 
 
 plot.oneBar<- function(data,title = "", xaxis = "", yaxis = "", showLegend = F){
   a <- list(
-    title = xaxis
+    title = xaxis,
+    type = 'category'
   )
   b <- list(
     title = yaxis

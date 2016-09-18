@@ -13,27 +13,34 @@ library(plotly)
 
 shinyServer(function(input, output, session) {
   
-    ###PLAY ENTRY
-    UpdateTable <- function(data){
-      output$hot <- renderRHandsontable({
-        rhandsontable(data[,names(GetMetadata(tableMeta)$fields)], stretchH = "all", height = 65)
-      })
-    }
-    
-    UpdateForm <- function()({
-      entry <- hot.to.df(input$hot)
-      colnames(entry) <- names(GetMetadata(tableMeta)$fields)
-      entry
-    })
-    
+    # table <- observe({
+    #   print(hot.to.df(input$hot))
+    #   hot.to.df(input$hot)
+    # })
+    # 
   
+    ###PLAY ENTRY
+    # UpdateTable <- function(data){
+    #   output$hot <- renderRHandsontable({
+    #     if(input$ODK == "O") rhandsontable(data[,names(GetMetadata(tableMeta)$fields)], stretchH = "all", height = 65) else rhandsontable(data[,names(GetMetadata(d_tableMeta)$fields)], stretchH = "all", height = 65)
+    #   })
+    # }
+    # 
+    # UpdateForm <- function()({
+    #   entry <- table()
+    #   print(length(entry))
+    #   colnames(entry) <- if(input$ODK =="O") names(GetMetadata(tableMeta)$fields) else names(GetMetadata(d_tableMeta)$fields)
+    #   entry
+    # })
+    # 
+    # 
     responses <- CreateDefaultRecord()
     
     # input fields are treated as a group -- the row
     formData <- reactive({
-      table<-MakeEntry(UpdateForm())
-      scoreboard<-sapply(names(GetMetadata(scoreboardMeta)$fields), function(x) input[[x]])
-      c(scoreboard,table)
+      entry<-sapply(names(GetMetadata(meta)$fields), function(x) input[[x]])
+      default <- CreateDefaultRecord()[,!colnames(CreateDefaultRecord()) %in% c(entry)]
+      c(entry,default)
     })
     
     # Click "Submit" button -> save data
@@ -43,29 +50,31 @@ shinyServer(function(input, output, session) {
       } else {
         CreateData(formData())
         UpdateScoreboard(ScoreBoardCalc(), session)
-        UpdateTable(CreateDefaultRecord())
+        UpdateTable(CreateDefaultRecord(),session)
       }
+      
     }, priority = 1)
     
     # Press "New" button -> display empty record
     observeEvent(input$new, {
       UpdateScoreboard(ScoreBoardCalc(), session)
-      UpdateTable(CreateDefaultRecord())
+      UpdateTable(CreateDefaultRecord(), session)
     })
     
     # Press "Delete" button -> delete from data
     observeEvent(input$delete, {
       DeleteData(formData())
       UpdateScoreboard(ScoreBoardCalc(), session)
-      UpdateTable(CreateDefaultRecord())
+      UpdateTable(CreateDefaultRecord(), session)
     }, priority = 1)
     
     # Select row in table -> show details in inputs
     observeEvent(input$responses_rows_selected, {
       if (length(input$responses_rows_selected) > 0) {
         data <- ReadData()[input$responses_rows_selected, ]
+        print(data)
         UpdateScoreboard(data,session)
-        UpdateTable(data)
+        UpdateTable(data,session)
       }
       
     })
@@ -78,12 +87,12 @@ shinyServer(function(input, output, session) {
       input$delete
       ReadData()
     }, server = FALSE, selection = "single",
-    colnames = unname(GetMetadata(meta)$fields),options=list(order = list(0, 'desc'), scrollX = TRUE),rownames = FALSE
+    colnames = unname(GetMetadata(meta)$fields),options=list(order = list(0, 'desc'), scrollX = TRUE, autoWidth =TRUE),rownames = FALSE
     ) 
     
 
     #initialize handsome table
-    UpdateTable(CreateDefaultRecord())
+    UpdateTable(CreateDefaultRecord(), session)
     UpdateScoreboard(ScoreBoardCalc(), session)
     
     ###DRIVE SUMMARY
@@ -610,5 +619,9 @@ shinyServer(function(input, output, session) {
     output$operf_play_front <- renderPlotly({
       plot.bars(rpYardsAvgByFactor(filter(oSide(), OFF_PLAY == input$operf_play),"FRONT"), title = "Average YDs Against Fronts", showLegend = F)
     })
+    
+    
+    ###DEFENSE VIEWS
+    
 })   
 

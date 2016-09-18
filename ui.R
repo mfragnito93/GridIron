@@ -9,7 +9,7 @@ sidebar <- dashboardSidebar(
   sidebarUserPanel("Ocenside",
                    subtitle = a(href = "#", icon("circle", class = "text-success"), "Online"),
                    # Image file should be in www/ subdir
-                   image = "chalkboard-black.jpg"
+                   image = "images/o.jpg"
   ),
   sidebarMenu(
     menuItem("Play Entry",tabName = "play_entry", icon=icon("th-large")),
@@ -49,37 +49,52 @@ body <- dashboardBody(
   #action buttons
   tabItems(
     tabItem(tabName = "play_entry",
-            fluidRow(
-                     column(width = 2, offset=3,shinyjs::disabled(textInput("id", "PLAY NUMBER", "0"))),
-                     column(width = 2, offset=1, numericInput("DRIVE", "DRIVE NUMBER", 0, min=1))
+            column(width = 12, fluidRow(column(width = 2, offset = 10, shinyjs::disabled(textInput("id", "PLAY", "0")))),
+                                fluidRow(h3("SCOREBOARD"),
+                                       column(width = 3, column(width = 6, numericInput("DRIVE", "DRIVE", 0, min=1)),
+                                            column(width = 6, numericInput("QTR","QTR", 1, min =1, max = 5))),
+                                       column(width = 3, column(width = 3, radioButtons("SIDE",label = "", choices = c("-"="-","+"="+"), selected = "PLUS")),
+                                            column(width = 6, numericInput("YARD_LN","YDLN", 0, min =0, max= 50)),
+                                            column(width = 3,  radioButtons("ODK","SIDE",choices = c("O" = "O","D" = "D")))
+                                            ),
+                                       column(width = 3, column(width = 6, numericInput("OPP_SCORE","OPP", 0)),
+                                            column(width = 6, numericInput("O_SCORE","OSIDE", 0), selected = "O")),
+                                       column(width =3, column(width = 6, numericInput("DN","DOWN", 1, min = 1, max = 4)),
+                                            column(width = 6, numericInput("DIST","DIST", 0, min =0)))
+                                       
+                                       ),
+                              column(width =12 ,
+                                fluidRow(h3("PLAY ENTRY"),
+                                       column(width = 3 ,textInput("HASH","HASH")),
+                                       column(width = 3, textInput("PERSONNEL","PERSONNEL")),
+                                       column(width = 3, textInput("OFF_FORM","OFF FORM")),
+                                       column(width = 3, textInput("DEF_FORM","DEF FORM"))
+                                       ),
+                                fluidRow(#h3("POST-PLAY"),
+                                        column(width = 3, textInput("PLAY_TYPE","PLAY TYPE")),
+                                        column(width = 3, textInput("RESULT", "RESULT")),
+                                        column(width = 3, textInput("GN_LS", "GN LS"))
+                                         ),
+                                fluidRow(#h3("PLAY INFO"),
+                                        column(width = 3, textInput("OFF_PLAY", "OFF PLAY")),
+                                        column(width = 3, textInput("DEF_PLAY", "DEF PLAY")),
+                                        column(width = 2, textInput("COVERAGE", "COVERAGE")),
+                                        column(width = 2, textInput("BLITZ", "BLITZ")),
+                                        column(width = 2, textInput("FRONT", "FRONT"))
+                                         ))
                      ),
             fluidRow(
-                     column(width=2, offset = 2,numericInput("O_SCORE","OCEANSIDE", 0)),
-                     column(width=3, offset = 1,numericInput("QTR","QTR", 1, width= "50%", min =1, max = 5),
-                            radioButtons("ODK","",inline = TRUE, choices = c("OSIDE" = "O","OPP" = "D"), selected = "O" ,width="100%")),
-                     column(width=2,numericInput("OPP_SCORE","OPPONENT", 0))
-                            ),
-            fluidRow(
-              column(width=1, offset = 3,numericInput("DN","DOWN", 1, min = 1, max = 4)),
-              column(width=1, numericInput("DIST","DIST", 0, min =0)),
-              column(width=3, offset = 1, fluidRow(
-                     column(width=2,radioButtons("SIDE",label = "", choices = c("-"="-","+"="+"), selected = "PLUS")),
-                     column(width=9,numericInput("YARD_LN","YDLN", 0, min =0, max= 50))
-                     )
-                    )
-            ),
-            fluidRow(
-              column(width =12 ,
-                  rHandsontableOutput("hot"),
+              column(width = 12 ,
+                  # rHandsontableOutput("hot"),
                   actionButton("submit", "Submit"),
                   actionButton("new", "New"),
-                  actionButton("delete", "Delete")
+                  actionButton("delete", "Delete"))
               ),
               br(),
               br(),
             fluidRow(
-              column(width = 12, DT::dataTableOutput("responses")))
-            )),
+              column(width = 12, column(width = 12, DT::dataTableOutput("responses"))))
+            ),
     tabItem(tabName = "drive_summary",
             fluidRow(
               column(width = 3, selectInput("drive", "SELECT A DRIVE", choices = sort(unique(responses$DRIVE),TRUE)))
@@ -244,8 +259,7 @@ body <- dashboardBody(
                      )
             )
     )
-)
- 
+) 
 
 
 dashboardPage(header,sidebar,body)
