@@ -72,7 +72,6 @@ shinyServer(function(input, output, session) {
     observeEvent(input$responses_rows_selected, {
       if (length(input$responses_rows_selected) > 0) {
         data <- ReadData()[input$responses_rows_selected, ]
-        print(data)
         UpdateScoreboard(data,session)
         UpdateTable(data,session)
       }
