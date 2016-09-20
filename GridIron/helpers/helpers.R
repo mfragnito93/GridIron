@@ -337,6 +337,7 @@ plot_ly(
 
 
 drive <- function(data,drive){
+  drive <- if(is.null(drive)) 1 else drive
   return(filter(rpOnly(data),DRIVE==as.integer(drive)))
 }
 
@@ -418,4 +419,16 @@ rpYardsAvgByFactor <- function(data,factor){
     i<-i+2
   }
   return(rp)
+}
+
+replaceNull <- function(input){
+  return(if(is.null(input)) "" else input)
+}
+
+defForm <- function(data,form){
+  return(filter(data,DEF_FORM == replaceNull(form)))
+}
+
+offForm <- function(data,form){
+  return(filter(data,OFF_FORM == replaceNull(form)))
 }

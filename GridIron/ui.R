@@ -1,8 +1,3 @@
-library(shiny)
-library(shinydashboard)
-library(rhandsontable)
-library(plotly)
-
 header <- dashboardHeader(title = "Gridiron") 
 
 sidebar <- dashboardSidebar(
@@ -12,6 +7,7 @@ sidebar <- dashboardSidebar(
                    image = "images/o.jpg"
   ),
   sidebarMenu(
+    menuItem("Pre Game", tabName = "pre_game", icon = icon("th-large")),
     menuItem("Play Entry",tabName = "play_entry", icon=icon("th-large")),
     menuItem("Drive Summary", tabName = "drive_summary", icon = icon("th-large")),
     menuItem("Offense", icon = icon("th-large"),
@@ -39,56 +35,67 @@ body <- dashboardBody(
                   #tags$img(src='images/mcfLong3.png', alt = 'MCF Capital Management')))
   #use shiny js to disable the ID field
   shinyjs::useShinyjs(),
-  
-  #data table
-  
-  
-  #input fields
-  
-  
-  #action buttons
   tabItems(
+    tabItem(tabName = "pre_game",
+            tabsetPanel(
+              tabPanel("Offense",
+                       br(),
+                              fluidRow(column(width = 6, textInput("e_form","ENTER OFFENSIVE FORMATIONS"),
+                                       actionButton("of_form_submit", "Submit"),
+                                       actionButton("of_form_delete", "Delete"),
+                                       dataTableOutput("o_forms"))),
+                                fluidRow(column(width = 6, textInput("e_oplays", "OSIDE PLAYS"),
+                                       actionButton("of_play_submit", "Submit"),
+                                       actionButton("of_play_delete", "Delete"),
+                                       dataTableOutput("o_plays"))),
+                       
+                       column(width = 2, textInput("e_forms", "DEF FORMS")),
+                       column(width = 2, textInput("e_cov","OPP COVERAGE")),
+                       column(width = 2, textInput("e_blitz", "OPP BLITZES")),
+                       column(width = 2, textInput("e_front","OPP FRONTS"))
+                       )
+            )
+            ),
     tabItem(tabName = "play_entry",
             column(width = 12, fluidRow(column(width = 2, offset = 10, shinyjs::disabled(textInput("id", "PLAY", "0")))),
                                 fluidRow(h3("SCOREBOARD"),
                                        column(width = 3, column(width = 6, numericInput("DRIVE", "DRIVE", 0, min=1)),
-                                            column(width = 6, numericInput("QTR","QTR", 1, min =1, max = 5))),
+                                            column(width = 6, selectInput("QTR","QTR", choices = c(1,2,3,4,5), selected = 1))),
                                        column(width = 3, column(width = 3, radioButtons("SIDE",label = "", choices = c("-"="-","+"="+"), selected = "PLUS")),
                                             column(width = 6, numericInput("YARD_LN","YDLN", 0, min =0, max= 50)),
                                             column(width = 3,  radioButtons("ODK","SIDE",choices = c("O" = "O","D" = "D")))
                                             ),
                                        column(width = 3, column(width = 6, numericInput("OPP_SCORE","OPP", 0)),
                                             column(width = 6, numericInput("O_SCORE","OSIDE", 0), selected = "O")),
-                                       column(width =3, column(width = 6, numericInput("DN","DOWN", 1, min = 1, max = 4)),
-                                            column(width = 6, numericInput("DIST","DIST", 0, min =0)))
+                                       column(width =3, column(width = 6, selectInput("DN","DOWN", choices = c(1,2,3,4), selected = 1)),
+                                            column(width = 6, numericInput("DIST","DIST", 0, min = 0)))
                                        
                                        ),
                               column(width =12 ,
                                 fluidRow(h3("PLAY ENTRY"),
-                                       column(width = 3 ,textInput("HASH","HASH")),
-                                       column(width = 3, textInput("PERSONNEL","PERSONNEL")),
-                                       column(width = 3, textInput("OFF_FORM","OFF FORM")),
-                                       column(width = 3, textInput("DEF_FORM","DEF FORM"))
+                                       column(width = 3 ,selectInput("HASH","HASH", choices = c("L","M","R"), selected = "M")),
+                                       column(width = 3, selectInput("PERSONNEL","PERSONNEL", choices = c(""), selected = NULL)),#selectInput("PERSONNEL","PERSONNEL", choices = if("ODK" == "O") getDDList("O_PERSONNEL") else getDDList("D_PERSONNEL"), selected = NULL)),
+                                       column(width = 3, selectInput("OFF_FORM","OFF FORM", choices = c(""), selected = NULL)),
+                                       column(width = 3, selectInput("DEF_FORM", "DEF FORM", choices = c(""), selected = NULL))
                                        ),
                                 fluidRow(#h3("POST-PLAY"),
-                                        column(width = 3, textInput("PLAY_TYPE","PLAY TYPE")),
-                                        column(width = 3, textInput("RESULT", "RESULT")),
+                                        column(width = 3, selectInput("PLAY_TYPE","PLAY TYPE", choices = c("RUN","PASS","SPECIAL"))),
+                                        column(width = 3, selectInput("RESULT", "RESULT", choices = c("RUSH","COMPLETE","INCOMPLETE","FUMBLE","INTERCEPTION","SPECIAL"))),
                                         column(width = 3, textInput("GN_LS", "GN LS"))
                                          ),
                                 fluidRow(#h3("PLAY INFO"),
-                                        column(width = 3, textInput("OFF_PLAY", "OFF PLAY")),
-                                        column(width = 3, textInput("DEF_PLAY", "DEF PLAY")),
-                                        column(width = 2, textInput("COVERAGE", "COVERAGE")),
-                                        column(width = 2, textInput("BLITZ", "BLITZ")),
-                                        column(width = 2, textInput("FRONT", "FRONT"))
+                                        column(width = 3, selectInput("OFF_PLAY","OFF PLAY", choices = c(""), selected = NULL)),
+                                        column(width = 3, selectInput("DEF_PLAY", "DEF PLAY", choices = c(""), selected = NULL)),
+                                        column(width = 2, selectInput("COVERAGE", "COVERAGE", choices = c(""), selected = NULL)),
+                                        column(width = 2, selectInput("BLITZ", "BLITZ", choices = c(""), selected = NULL)),
+                                        column(width = 2, selectInput("FRONT", "FRONT", choices = c(""), selected = NULL))
                                          ))
                      ),
             fluidRow(
-              column(width = 12 ,
-                  # rHandsontableOutput("hot"),
+              column(width = 12 , column(width = 12, align = "right",
                   actionButton("submit", "Submit"),
                   actionButton("new", "New"),
-                  actionButton("delete", "Delete"))
+                  actionButton("delete", "Delete")))
               ),
               br(),
               br(),
@@ -97,7 +104,7 @@ body <- dashboardBody(
             ),
     tabItem(tabName = "drive_summary",
             fluidRow(
-              column(width = 3, selectInput("drive", "SELECT A DRIVE", choices = sort(unique(responses$DRIVE),TRUE)))
+              column(width = 3, uiOutput('drive_list'))
             ),
             fluidRow(
               column(width = 3, valueBoxOutput("ds_first_downs")),
@@ -179,7 +186,7 @@ body <- dashboardBody(
                 fluidRow(column(width =12, h1("Formation Analysis"),
                                 tabsetPanel(
                                   tabPanel("Defense",
-                                           selectInput("od_formation", "SELECT A FORMATION", choices = unique(filter(rpOnly(responses),ODK=="O")$DEF_FORM)),
+                                           uiOutput("od_form_list"),
                                            fluidRow(column(width = 3, valueBoxOutput("ofd_formation_count")),
                                                     column(width = 3, valueBoxOutput("ofd_formation_yards")),
                                                     column(width = 3, valueBoxOutput("ofd_formation_ryards")),
@@ -190,7 +197,7 @@ body <- dashboardBody(
                                                              plotlyOutput("ofd_fronts"))
                                            ),
                                   tabPanel("Offense",
-                                           selectInput("oo_formation", "SELECT A FORMATION", choices = unique(filter(rpOnly(responses),ODK=="O")$OFF_FORM)),
+                                           uiOutput("oo_form_list"),
                                            fluidRow(column(width = 3, valueBoxOutput("ofo_formations_count")),
                                                     column(width = 3, valueBoxOutput("ofo_formation_yards")),
                                                     column(width = 3, valueBoxOutput("ofo_formation_ryards")),
@@ -221,7 +228,7 @@ body <- dashboardBody(
                                                          plotlyOutput("operf_rp_front"))),
                               tabPanel("Personnel",
                                        column(width =12,
-                                       selectInput("operf_personnel", "SELECT A PERSONNEL", choices = unique(filter(rpOnly(responses),ODK=="O")$PERSONNEL)),
+                                       uiOutput("operf_pers_list"),
                                        fluidRow(column(width = 3, valueBoxOutput("operf_run_pers")),
                                                 column(width = 3, valueBoxOutput("operf_pass_pers")),
                                                 column(width = 3, valueBoxOutput("operf_run_avg_pers")),
@@ -233,7 +240,7 @@ body <- dashboardBody(
                                                          plotlyOutput("operf_pers_front")))),
                               tabPanel("Formation",
                                        column(width =12,
-                                              selectInput("operf_form", "SELECT A FORMATION", choices = unique(filter(rpOnly(responses),ODK=="O")$OFF_FORM)),
+                                              uiOutput("operf_form_list"),
                                               fluidRow(column(width = 3, valueBoxOutput("operf_run_form")),
                                                        column(width = 3, valueBoxOutput("operf_pass_form")),
                                                        column(width = 3, valueBoxOutput("operf_run_avg_form")),
@@ -245,7 +252,7 @@ body <- dashboardBody(
                                                      plotlyOutput("operf_form_front")))),
                               tabPanel("Play",
                                        column(width =12,
-                                              selectInput("operf_play", "SELECT A PLAY", choices = unique(filter(rpOnly(responses),ODK=="O")$OFF_PLAY)),
+                                             uiOutput("operf_play_list"),
                                               fluidRow(column(width = 3, valueBoxOutput("operf_play_type")),
                                                        column(width = 3, valueBoxOutput("operf_play_ran")),
                                                        column(width = 3, valueBoxOutput("operf_play_yards")),
@@ -258,6 +265,39 @@ body <- dashboardBody(
                             )
                      )
             )
+    # tabItem(tabName = "d_summary",
+    #         h1("Summary"),
+    #         tabsetPanel(
+    #           tabPanel("Oceanside",fluidRow(
+    #             column(width = 9, br(),column(width = 12, plotlyOutput("os_rp")),
+    #                    column(width = 12, plotlyOutput("os_top_plays")),
+    #                    column(width = 12, plotlyOutput("os_top_pers")),
+    #                    column(width = 12, plotlyOutput("os_top_forms"))
+    #             ),
+    #             column(width = 3, br(),br(),br(),br(),
+    #                    column(width = 12, valueBoxOutput("os_first_downs")),
+    #                    column(width = 12, valueBoxOutput("os_total_yards")),
+    #                    column(width = 12, valueBoxOutput("os_total_plays")),
+    #                    column(width = 12, valueBoxOutput("os_yards_play")),
+    #                    column(width = 12, valueBoxOutput("os_run_yards")),
+    #                    column(width = 12, valueBoxOutput("os_pass_yards")),
+    #                    column(width = 12, valueBoxOutput("os_run_yards_play")),
+    #                    column(width = 12, valueBoxOutput("os_pass_yards_play")),
+    #                    column(width = 12, valueBoxOutput("os_completion_pct")),
+    #                    column(width = 12, valueBoxOutput("os_drives")),
+    #                    column(width = 12, valueBoxOutput("os_third_conv")),
+    #                    column(width = 12, valueBoxOutput("os_fourth_conv"))
+    #             )
+    #           )),
+    #           tabPanel("Defense",fluidRow(
+    #             column(width = 12, br(),plotlyOutput("os_def_form"),
+    #                    plotlyOutput("os_coverage"),
+    #                    plotlyOutput("os_front"),
+    #                    plotlyOutput("os_blitz")
+    #             )
+    #           )
+    #           ))
+    #         )
     )
 ) 
 
