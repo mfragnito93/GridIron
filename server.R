@@ -132,7 +132,7 @@ shinyServer(function(input, output, session) {
     })
     
     output$ds_rp <- renderPlotly({
-      plot.donut(colSort(getTable(drive_summary(),"PLAY_TYPE"),"Var1"))
+      plot.donut(colSort(getTable(drive_summary(),"PLAY_TYPE"),"Var1"), title = "Run Pass Breakdown", showLegend = F)
     })
     
     output$drive_plot<-renderPlotly({
@@ -149,22 +149,30 @@ shinyServer(function(input, output, session) {
       filter(ReadData(),ODK == "D")
     }
     
+    output$oside <- reactive({
+      rpOnly(oSide())
+    })
+    
+    output$opp <- reactive({
+      print(rpOnly(oSideD()))
+    })
+    
     ##Offense Summary
     output$os_rp <- renderPlotly({
-      plot.donut(colSort(getTable(oSide(),"PLAY_TYPE"),"Var1"))
+      plot.donut(colSort(getTable(oSide(),"PLAY_TYPE"),"Var1"), title = "Run Pass Breakdown", showLegend = T)
     })
 
     
     output$os_top_plays <- renderPlotly({
-      plot.oneBar(getN(getTable(oSide(),"OFF_PLAY"),"value"))
+      plot.oneBar(getN(getTable(oSide(),"OFF_PLAY"),"value"), title = "Top 5 Plays Ran")
     })
     
     output$os_top_forms <- renderPlotly({
-      plot.oneBar(getN(getTable(oSide(),"OFF_FORM"),"value"))
+      plot.oneBar(getN(getTable(oSide(),"OFF_FORM"),"value"), title = "Top 5 Formations Ran")
     })
     
     output$os_top_pers <- renderPlotly({
-      plot.donut(getTable(oSide(),"PERSONNEL"))
+      plot.donut(getTable(oSide(),"PERSONNEL"), title = "Personnel Breakdown", showLegend = T)
     })
     
     output$os_total_yards<-renderValueBox({
@@ -253,19 +261,19 @@ shinyServer(function(input, output, session) {
     })
     
     output$os_def_form <- renderPlotly({
-      plot.oneBar(getTable(oSide(),c("DEF_FORM")))
+      plot.oneBar(getTable(oSide(),c("DEF_FORM")), title = "Formations")
     })
     
     output$os_coverage <- renderPlotly({
-      plot.oneBar(getTable(oSide(),c("COVERAGE")))
+      plot.oneBar(getTable(oSide(),c("COVERAGE")), title = "Coverages")
     })
     
     output$os_front <- renderPlotly({
-      plot.oneBar(getTable(oSide(),c("FRONT")))
+      plot.oneBar(getTable(oSide(),c("FRONT")), title = "Fronts")
     })
     
     output$os_blitz <- renderPlotly({
-      plot.oneBar(getTable(oSide(),c("BLITZ")))
+      plot.oneBar(getTable(oSide(),c("BLITZ")), title = "Blitzes")
     })
     
     # 
@@ -287,22 +295,79 @@ shinyServer(function(input, output, session) {
       plot.bars(getTable(addDistBucket(filter(oSide(),DN==input$def_form_dn)),c("DEF_FORM","DIST_BUCKET")),"stack")
     })
     
+    
     output$od_coverage_dn <- renderPlotly({
       plot.bars(getTable(oSide(),c("COVERAGE","DN")),"stack")
     })
     
     #DN and Distance
+    output$od_coverage_dist <- renderPlotly({
+      plot.bars(getTable(addDistBucket(filter(oSide(),DN==input$coverage_dn)),c("COVERAGE","DIST_BUCKET")),"stack")
+    })
+    
     
     output$od_front_dn <- renderPlotly({
       plot.bars(getTable(oSide(),c("FRONT","DN")),"stack")
     })
     
     #DN and Distance
+    output$od_front_dist <- renderPlotly({
+      plot.bars(getTable(addDistBucket(filter(oSide(),DN==input$front_dn)),c("FRONT","DIST_BUCKET")),"stack")
+    })
     
     output$od_blitz_dn <- renderPlotly({
       plot.bars(getTable(oSide(),c("BLITZ","DN")),"stack")
     })
     
+    output$od_blitz_dist <- renderPlotly({
+      plot.bars(getTable(addDistBucket(filter(oSide(),DN==input$blitz_dn)),c("BLITZ","DIST_BUCKET")),"stack")
+    })
+    
+    
+    output$od_avg_yds_dn <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(oSide(),"DN"), "stack")
+    })
+    
+    output$od_avg_yds_dist <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(addDistBucket(filter(oSide(),DN==input$rp_dn)),"DIST_BUCKET"), "stack")
+    })
+    
+    
+    ##FORMATIONS
+    output$ofd_formation_count <- renderValueBox({
+      valueBox(
+        length(filter(oSide(),DEF_FORM == input$od_formation)$DRIVE), "DRIVES", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    output$ofd_coverages <- renderPlotly({
+      plot.donut(getTable(filter(oSide(),DEF_FORM == input$od_formation),c("COVERAGE")), title = "Coverages", showLegend = T)
+    })
+    
+    output$ofd_blitzes <- renderPlotly({
+      plot.donut(getTable(filter(oSide(),DEF_FORM == input$od_formation),c("BLITZ")), title = "Blitzes", showLegend = T)
+    })
+    
+    output$ofd_fronts <- renderPlotly({
+      plot.donut(getTable(filter(oSide(),DEF_FORM == input$od_formation),c("FRONT")), title = "Fronts", showLegend = T)
+    })
+    
+    output$ofo_formations <- renderPlotly({
+      plot.donut(getTable(filter(oSide(),OFF_FORM == input$oo_formation),c("DEF_FORM")), title = "Defensive Formations")
+    })
+    
+    output$ofo_coverages<- renderPlotly({
+      plot.donut(getTable(filter(oSide(),OFF_FORM == input$oo_formation),c("COVERAGE")), title = "Coverages")
+    })
+    
+    output$ofo_blitzes <- renderPlotly({
+      plot.donut(getTable(filter(oSide(),OFF_FORM == input$oo_formation),c("BLITZ")), title = "Blitzes")
+    })
+    
+    output$ofo_fronts <- renderPlotly({
+      plot.donut(getTable(filter(oSide(),OFF_FORM == input$oo_formation),c("FRONT")), title = "Fronts")
+    })
     
     
 })   

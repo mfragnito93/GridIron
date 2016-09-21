@@ -233,7 +233,13 @@ getN <- function(data,col,top=TRUE,n=5){
   return(head(colSort(data,col,top),n))
 }
 
-plot.bars <- function(data,stack = "group"){
+plot.bars <- function(data,stack = "group", title = "", xaxis = "", yaxis = "", showLegend = T){
+  a <- list(
+    title = xaxis
+  )
+  b <- list(
+    title = yaxis
+  )
   colnames(data) <- c("group","x","y")
   data$x<-as.factor(data$x)
   data$group <- as.factor(data$group)
@@ -243,22 +249,29 @@ plot.bars <- function(data,stack = "group"){
     y = y,
     color = group,
     colors=teamColors[1:length(unique(data$group))],
-    type = "bar") %>% layout(barmode = stack)
+    type = "bar") %>% layout(barmode = stack, title = title, showlegend=showLegend, xaxis = a, yaxis = b)
 }
 
-plot.oneBar<- function(data){
+plot.oneBar<- function(data,title = "", xaxis = "", yaxis = "", showLegend = F){
+  a <- list(
+    title = xaxis
+  )
+  b <- list(
+    title = yaxis
+  )
   colnames(data) <- c("x","y")
+  
   plot_ly(
     data = data,
     x = x,
     y = y,
     color = y,
     type = "bar",
-    marker = list(color = c('#010014'))
-  )
+    marker = list(color = c('#010014')) 
+  )  %>% layout(title = title, showlegend=showLegend, xaxis = a, yaxis = b)
 }
 
-plot.donut <- function(data){
+plot.donut <- function(data, title = "", showLegend = F){
   colnames(data) <- c("x","y")
   data$x<-as.factor(data$x)
   plot_ly(
@@ -266,7 +279,7 @@ plot.donut <- function(data){
     labels = x,
     values = y,
     marker = list(colors=teamColors[1:length(unique(data$x))]),
-    type = "pie", hole = 0.6) %>% layout(showlegend = F)
+    type = "pie", hole = 0.6) %>% layout(showlegend = showLegend, title = title)
 }
 
 makeWaterFall <- function(x){
@@ -296,7 +309,7 @@ plot_ly(
   y = value,
   color = variable,
   colors =c('#ffffff','#87B5FF','#010014'),
-  type = "bar") %>% layout(barmode = "stack", showlegend=F, xaxis = a, yaxis = b)
+  type = "bar") %>% layout(barmode = "stack", title = "Drive Progression", showlegend=F, xaxis = a, yaxis = b)
 }
 
 
@@ -334,4 +347,52 @@ addDistBucket <- function(data){
     data[play,'DIST_BUCKET'] <- if (dist<4) "SHORT" else if (dist<8) "MEDIUM" else if(dist<13) "LONG" else "+12"
   }
   return(data)
+}
+
+rpYards <- function(data){
+  rp <- data.frame()
+  rp[1,"PLAY_TYPE"] <- "RUN"
+  rp[2,"PLAY_TYPE"] <- "PASS"
+  rp[1,"value"] <- as.integer(sum(filter(oppD, PLAY_TYPE == "RUN")$GN_LS))
+  rp[2,"value"] <- as.integer(sum(filter(oppD, PLAY_TYPE == "PASS")$GN_LS))
+  return(rp)
+}
+
+rpYardsAvg <- function(data){
+  rp <- data.frame()
+  rp[1,"PLAY_TYPE"] <- "RUN"
+  rp[2,"PLAY_TYPE"] <- "PASS"
+  rp[1,"value"] <- round(mean(filter(oppD, PLAY_TYPE == "RUN")$GN_LS),2)
+  rp[2,"value"] <- round(mean(filter(oppD, PLAY_TYPE == "PASS")$GN_LS),2)
+  return(rp)
+}
+
+rpYardsByFactor <- function(data,factor){
+  rp <- data.frame()
+  i<-1
+  for(fact in unique(rpOnly(data)[,factor])){
+    rp[i,"PLAY_TYPE"] <- "RUN"
+    rp[i+1,"PLAY_TYPE"] <- "PASS"
+    rp[i,"group"] <- fact
+    rp[i+1,"group"] <- fact
+    rp[i,"value"] <- as.integer(sum(data[data[,"PLAY_TYPE"]=="RUN" & data[,factor]==fact,]$GN_LS))
+    rp[i+1,"value"] <- as.integer(sum(data[data[,"PLAY_TYPE"]=="PASS" & data[,factor]==fact,]$GN_LS))
+    i<-i+2
+  }
+  return(rp)
+}
+
+rpYardsAvgByFactor <- function(data,factor){
+  rp <- data.frame()
+  i<-1
+  for(fact in unique(rpOnly(data)[,factor])){
+    rp[i,"PLAY_TYPE"] <- "RUN"
+    rp[i+1,"PLAY_TYPE"] <- "PASS"
+    rp[i,"group"] <- fact
+    rp[i+1,"group"] <- fact
+    rp[i,"value"] <- round(mean(data[data[,"PLAY_TYPE"]=="RUN" & data[,factor]==fact,]$GN_LS),2)
+    rp[i+1,"value"] <- round(mean(data[data[,"PLAY_TYPE"]=="PASS" & data[,factor]==fact,]$GN_LS),2)
+    i<-i+2
+  }
+  return(rp)
 }

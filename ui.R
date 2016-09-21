@@ -17,15 +17,13 @@ sidebar <- dashboardSidebar(
     menuItem("Offense", icon = icon("th-large"),
              menuSubItem("Summary", icon = icon("th-large"), tabName = "o_summary"),
              menuSubItem("Down", icon = icon("th-large"), tabName = "o_down"),
-             menuSubItem("Run Pass", icon = icon("th-large"), tabName = "o_down"),
              menuSubItem("Formation", icon = icon("th-large"), tabName = "o_formation"),
-             menuSubItem("Personnel", icon = icon("th-large"), tabName = "o_personnel"),
-             menuSubItem("Plays", icon = icon("th-large"), tabName = "o_play")
+             menuSubItem("Whats Working", icon = icon("th-large"), tabName = "o_play")
              ),
     menuItem("Defense", icon = icon("th-large"),
              menuSubItem("Summary", icon = icon("th-large"), tabName = "d_summary"),
              menuSubItem("Down", icon = icon("th-large"), tabName = "d_down"),
-             menuSubItem("Run Pass", icon = icon("th-large"), tabName = "d_down"),
+             menuSubItem("Run Pass", icon = icon("th-large"), tabName = "d_rp"),
              menuSubItem("Formation", icon = icon("th-large"), tabName = "d_formation"),
              menuSubItem("Personnel", icon = icon("th-large"), tabName = "d_personnel"),
              menuSubItem("Plays", icon = icon("th-large"), tabName = "d_play")
@@ -102,34 +100,37 @@ body <- dashboardBody(
             )
             ),
     tabItem(tabName = "o_summary",
-            fluidRow(h1("Oceanside Offense"),
-              column(width = 9, column(width = 12, plotlyOutput("os_rp")),
-                                column(width = 12, plotlyOutput("os_top_plays")),
-                                column(width = 12, plotlyOutput("os_top_pers")),
-                                column(width = 12, plotlyOutput("os_top_forms"))
-                     ),
-              column(width = 3, br(),br(),br(),
-                                column(width = 12, valueBoxOutput("os_first_downs")),
-                                column(width = 12, valueBoxOutput("os_total_yards")),
-                                column(width = 12, valueBoxOutput("os_total_plays")),
-                                column(width = 12, valueBoxOutput("os_yards_play")),
-                                column(width = 12, valueBoxOutput("os_run_yards")),
-                                column(width = 12, valueBoxOutput("os_pass_yards")),
-                                column(width = 12, valueBoxOutput("os_run_yards_play")),
-                                column(width = 12, valueBoxOutput("os_pass_yards_play")),
-                                column(width = 12, valueBoxOutput("os_completion_pct")),
-                                column(width = 12, valueBoxOutput("os_drives")),
-                                column(width = 12, valueBoxOutput("os_third_conv")),
-                                column(width = 12, valueBoxOutput("os_fourth_conv"))
-                     )
-              ),
-              fluidRow(h1("Opponent Defense"),
-                  column(width = 12, plotlyOutput("os_def_form"),
-                                     plotlyOutput("os_coverage"),
-                                     plotlyOutput("os_front"),
-                                     plotlyOutput("os_blitz")
-                        )
-                      )
+            h1("Summary"),
+            tabsetPanel(
+                  tabPanel("Oceanside",fluidRow(
+                        column(width = 9, br(),column(width = 12, plotlyOutput("os_rp")),
+                                          column(width = 12, plotlyOutput("os_top_plays")),
+                                          column(width = 12, plotlyOutput("os_top_pers")),
+                                          column(width = 12, plotlyOutput("os_top_forms"))
+                               ),
+                        column(width = 3, br(),br(),br(),br(),
+                                          column(width = 12, valueBoxOutput("os_first_downs")),
+                                          column(width = 12, valueBoxOutput("os_total_yards")),
+                                          column(width = 12, valueBoxOutput("os_total_plays")),
+                                          column(width = 12, valueBoxOutput("os_yards_play")),
+                                          column(width = 12, valueBoxOutput("os_run_yards")),
+                                          column(width = 12, valueBoxOutput("os_pass_yards")),
+                                          column(width = 12, valueBoxOutput("os_run_yards_play")),
+                                          column(width = 12, valueBoxOutput("os_pass_yards_play")),
+                                          column(width = 12, valueBoxOutput("os_completion_pct")),
+                                          column(width = 12, valueBoxOutput("os_drives")),
+                                          column(width = 12, valueBoxOutput("os_third_conv")),
+                                          column(width = 12, valueBoxOutput("os_fourth_conv"))
+                               )
+                        )),
+                  tabPanel("Defense",fluidRow(
+                                          column(width = 12, br(),plotlyOutput("os_def_form"),
+                                                             plotlyOutput("os_coverage"),
+                                                             plotlyOutput("os_front"),
+                                                             plotlyOutput("os_blitz")
+                                                )
+                                              )
+                  ))
               
             ),
     tabItem(tabName = "o_down", 
@@ -140,16 +141,47 @@ body <- dashboardBody(
                                             selectInput("def_form_dn", "SELECT A DOWN", choices = c("1","2","3","4")),
                                             plotlyOutput("od_def_form_dist")),
                                   tabPanel("Coverage",
-                                            plotlyOutput("od_coverage_dn")),
+                                            plotlyOutput("od_coverage_dn"),
+                                            selectInput("coverage_dn", "SELECT A DOWN", choices = c("1","2","3","4")),
+                                            plotlyOutput("coverage_dist")),
                                   tabPanel("Front",
-                                           plotlyOutput("od_front_dn")
-                                           ),
+                                            plotlyOutput("od_front_dn"),
+                                            selectInput("front_dn", "SELECT A DOWN", choices = c("1","2","3","4")),
+                                            plotlyOutput("od_front_dist")),
                                   tabPanel("Blitz", 
-                                           plotlyOutput("od_blitz_dn"))
+                                            plotlyOutput("od_blitz_dn"),
+                                            selectInput("blitz_dn", "SELECT A DOWN", choices = c("1","2","3","4")),
+                                            plotlyOutput("od_blitz_dist")),
+                                  tabPanel("Offense",
+                                            plotlyOutput("od_avg_yds_dn"),
+                                            selectInput("rp_dn", "SELECT A DOWN", choices = c("1","2","3","4")),
+                                            plotlyOutput("od_avg_yds_dist"))                                          
+                                           )
                                   )
                        )
                       
-            ))
+            ),
+    tabItem(tabName = "o_formation",
+                fluidRow(column(width =12, h1("Formation Analysis"),
+                                tabsetPanel(
+                                  tabPanel("Defense",
+                                           selectInput("od_formation", "SELECT A FORMATION", choices = unique(filter(rpOnly(responses),ODK=="O")$DEF_FORM)),
+                                           fluidRow(column(width = 4, valueBoxOutput("ofd_formation_count"))),
+                                           column(width = 6, plotlyOutput("ofd_coverages")),
+                                           column(width = 6, plotlyOutput("ofd_blitzes"),
+                                                             plotlyOutput("ofd_fronts"))
+                                           ),
+                                  tabPanel("Offense",
+                                           selectInput("oo_formation", "SELECT A FORMATION", choices = unique(filter(rpOnly(responses),ODK=="O")$OFF_FORM)),
+                                           plotlyOutput("ofo_formations"),
+                                           plotlyOutput("ofo_coverages"),
+                                           plotlyOutput("ofo_blitzes"),
+                                           plotlyOutput("ofo_fronts")
+                                           )
+                                )
+                                ))
+            
+            )
     )
 )
  
