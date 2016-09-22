@@ -1,10 +1,12 @@
 #Admin/setting functions
-preSetDDs <- read.csv(preSetDDPath)
+preSetDDsTemplate <- read.csv(preSetDDTemplatePath, stringsAsFactors = FALSE)
+preSetDDs <- read.csv(preSetDDPath, stringsAsFactors = FALSE)
+
+preSetPDTemplate <- read.csv(preSetPDTemplatePath, stringsAsFactors = FALSE)
+responses <- read.csv(preSetPDPath, stringsAsFactors = FALSE)
+colnames(preSetDDs)<-preSetHeader
 
 #presets
-getDDList <- function(column){
-  l<-unique(preSetDDs[,column][preSetDDs[,column]!=""])
-  if(is.factor(l)) return(levels(l)) else return(l)
-}
+
 
 #

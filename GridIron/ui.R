@@ -7,7 +7,6 @@ sidebar <- dashboardSidebar(
                    image = "images/o.jpg"
   ),
   sidebarMenu(
-    menuItem("Pre Game", tabName = "pre_game", icon = icon("th-large")),
     menuItem("Play Entry",tabName = "play_entry", icon=icon("th-large")),
     menuItem("Drive Summary", tabName = "drive_summary", icon = icon("th-large")),
     menuItem("Offense", icon = icon("th-large"),
@@ -23,7 +22,8 @@ sidebar <- dashboardSidebar(
              menuSubItem("Formation", icon = icon("th-large"), tabName = "d_formation"),
              menuSubItem("Personnel", icon = icon("th-large"), tabName = "d_personnel"),
              menuSubItem("Plays", icon = icon("th-large"), tabName = "d_play")
-             )
+             ),
+    menuItem("Film Room", tabName = "film_room", icon = icon("th-large"))
   )
 )
 
@@ -35,33 +35,14 @@ body <- dashboardBody(
                   #tags$img(src='images/mcfLong3.png', alt = 'MCF Capital Management')))
   #use shiny js to disable the ID field
   shinyjs::useShinyjs(),
+  
   tabItems(
-    tabItem(tabName = "pre_game",
-            tabsetPanel(
-              tabPanel("Offense",
-                       br(),
-                              fluidRow(column(width = 6, textInput("e_form","ENTER OFFENSIVE FORMATIONS"),
-                                       actionButton("of_form_submit", "Submit"),
-                                       actionButton("of_form_delete", "Delete"),
-                                       dataTableOutput("o_forms"))),
-                                fluidRow(column(width = 6, textInput("e_oplays", "OSIDE PLAYS"),
-                                       actionButton("of_play_submit", "Submit"),
-                                       actionButton("of_play_delete", "Delete"),
-                                       dataTableOutput("o_plays"))),
-                       
-                       column(width = 2, textInput("e_forms", "DEF FORMS")),
-                       column(width = 2, textInput("e_cov","OPP COVERAGE")),
-                       column(width = 2, textInput("e_blitz", "OPP BLITZES")),
-                       column(width = 2, textInput("e_front","OPP FRONTS"))
-                       )
-            )
-            ),
     tabItem(tabName = "play_entry",
             column(width = 12, fluidRow(column(width = 2, offset = 10, shinyjs::disabled(textInput("id", "PLAY", "0")))),
                                 fluidRow(h3("SCOREBOARD"),
                                        column(width = 3, column(width = 6, numericInput("DRIVE", "DRIVE", 0, min=1)),
                                             column(width = 6, selectInput("QTR","QTR", choices = c(1,2,3,4,5), selected = 1))),
-                                       column(width = 3, column(width = 3, radioButtons("SIDE",label = "", choices = c("-"="-","+"="+"), selected = "PLUS")),
+                                       column(width = 3, column(width = 3, radioButtons("SIDE",label = "", choices = c("-"="-","+"="+"), selected = "+")),
                                             column(width = 6, numericInput("YARD_LN","YDLN", 0, min =0, max= 50)),
                                             column(width = 3,  radioButtons("ODK","SIDE",choices = c("O" = "O","D" = "D")))
                                             ),
@@ -73,15 +54,15 @@ body <- dashboardBody(
                                        ),
                               column(width =12 ,
                                 fluidRow(h3("PLAY ENTRY"),
-                                       column(width = 3 ,selectInput("HASH","HASH", choices = c("L","M","R"), selected = "M")),
+                                       column(width = 3 ,selectInput("HASH","HASH", choices = c("L","M","R"), selected = NULL)),
                                        column(width = 3, selectInput("PERSONNEL","PERSONNEL", choices = c(""), selected = NULL)),#selectInput("PERSONNEL","PERSONNEL", choices = if("ODK" == "O") getDDList("O_PERSONNEL") else getDDList("D_PERSONNEL"), selected = NULL)),
                                        column(width = 3, selectInput("OFF_FORM","OFF FORM", choices = c(""), selected = NULL)),
                                        column(width = 3, selectInput("DEF_FORM", "DEF FORM", choices = c(""), selected = NULL))
                                        ),
                                 fluidRow(#h3("POST-PLAY"),
-                                        column(width = 3, selectInput("PLAY_TYPE","PLAY TYPE", choices = c("RUN","PASS","SPECIAL"))),
-                                        column(width = 3, selectInput("RESULT", "RESULT", choices = c("RUSH","COMPLETE","INCOMPLETE","FUMBLE","INTERCEPTION","SPECIAL"))),
-                                        column(width = 3, textInput("GN_LS", "GN LS"))
+                                        column(width = 3, selectInput("PLAY_TYPE","PLAY TYPE", choices = c("RUN","PASS","SPECIAL"), selected = NULL)),
+                                        column(width = 3, selectInput("RESULT", "RESULT", choices = c("RUSH","COMPLETE","INCOMPLETE","FUMBLE","INTERCEPTION","SPECIAL"), selected = NULL)),
+                                        column(width = 3, numericInput("GN_LS", "GN LS", 0))
                                          ),
                                 fluidRow(#h3("PLAY INFO"),
                                         column(width = 3, selectInput("OFF_PLAY","OFF PLAY", choices = c(""), selected = NULL)),
@@ -264,7 +245,7 @@ body <- dashboardBody(
                                                                 plotlyOutput("operf_play_front"))))
                             )
                      )
-            )
+            ),
     # tabItem(tabName = "d_summary",
     #         h1("Summary"),
     #         tabsetPanel(
@@ -298,6 +279,65 @@ body <- dashboardBody(
     #           )
     #           ))
     #         )
+    
+    tabItem(tabName = "film_room",
+            tabsetPanel(
+              tabPanel("Data",
+                       column(width = 12, fluidRow(h1("Play Data"))),
+                       column(width = 3,
+                              sidebarPanel(
+                                h3("Current Play Data"),
+                                downloadButton('downloadCurrent_plays', 'Download'),
+                                h3("Play Data Template"),
+                                downloadButton('downloadTemplate_plays', 'Download'),
+                                br(),
+                                h3("Upload Play Data"),
+                                fluidRow(
+                                  column(width = 8, fileInput('pd', 'Choose CSV File',
+                                                              accept=c('text/csv', 
+                                                                       'text/comma-separated-values,text/plain', 
+                                                                       '.csv'))),
+                                  column(width = 1, br(),actionButton("pd_submit","Submit"))),
+                                column(width = 12, fluidRow(textOutput("pd_success"))),
+                                fluidRow(
+                                  column(width = 12,
+                                         h3("Start a New Game"))),
+                                fluidRow(column(width =8, passwordInput("password", "Password:")),
+                                         column(width = 1, br(),actionButton("new_game","New Game"))
+                                ),
+                                fluidRow(column(width =8, br(),textOutput("pass_text")))
+                              )
+                       ),
+                       column(width = 9,
+                              fluidRow(DT::dataTableOutput("currentPlays"))
+                       )
+              ),
+            tabPanel("Drop Downs",
+                     column(width = 12, fluidRow(h1("Custom Lists"))),
+                     column(width = 3,
+                            sidebarPanel(
+                              h3("Current Drop Downs"),
+                              downloadButton('downloadCurrent', 'Download'),
+                              h3("Drop Down Template"),
+                              downloadButton('downloadTemplate', 'Download'),
+                              br(),
+                              h3("Custom Drop Down File"),
+                              fluidRow(
+                                column(width = 8, fileInput('dds', 'Choose CSV File',
+                                                            accept=c('text/csv', 
+                                                                     'text/comma-separated-values,text/plain', 
+                                                                     '.csv'))),
+                                column(width = 1, br(),actionButton("dd_submit","Submit"))),
+                              fluidRow(column(width=12,br(),textOutput("dd_success")))
+                            )
+                     ),
+                     column(width = 9,
+                            fluidRow(DT::dataTableOutput("customLists"))
+                     )
+                     
+                )
+            )
+          )
     )
 ) 
 

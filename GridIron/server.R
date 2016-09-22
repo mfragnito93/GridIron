@@ -5,74 +5,129 @@
 # http://shiny.rstudio.com
 #
 
+
+
 shinyServer(function(input, output, session) {
   
   ###PRE-GAMe ENTRIES
-  # output$o_forms <- DT::renderDataTable({
-  #     as.data.frame(unique(ReadData()$OFF_FORM))
-  #   }, server = FALSE, selection = "single",
-  #   colnames = c("OFFENSIVE FORMATIONS"),options=list(order = list(0, 'desc'), scrollX = TRUE, autoWidth = FALSE, sDom  = '<"top">r<"bottom">fp'),rownames = FALSE
-  # )
-  # 
-  # output$o_plays <- DT::renderDataTable({
-  #   as.data.frame(unique(ReadData()$OFF_PLAY))
-  # }, server = FALSE, selection = "single",
-  # colnames = c("OFFENSIVE PLAYS"),options=list(order = list(0, 'desc'), scrollX = TRUE, autoWidth = FALSE, sDom  = '<"top">r<"bottom">fp'),rownames = FALSE
-  # )
-  # # 
-  #   #Play Entry Dropdowns
-  # output$personnel <- renderUI({
-  #   input$responses_rows_selected
-  #   list <- if(input$ODK == "O") getDDList("O_PERSONNEL") else getDDList("D_PERSONNEL")
-  #   selectInput("PERSONNEL","PERSONNEL", choices = list, selected = as.integer(row()["PERSONNEL"]))
-  # })
-  # 
-  # output$off_form <- renderUI({
-  #   input$responses_rows_selected
-  #   list <- if(input$ODK == "O") getDDList("O_OFF_FORM") else getDDList("D_OFF_FORM")
-  #   selectInput("OFF_FORM","OFF FORM", choices = list, selected = unname(row()["OFF_FORM"]))
-  # })
-  # 
-  # output$def_form <- renderUI({
-  #   input$responses_rows_selected
-  #   list <- if(input$ODK == "O") getDDList("O_DEF_FORM") else getDDList("D_DEF_FORM")
-  #   selectInput("DEF_FORM", "DEF FORM", choices = list, selected = unname(row()["DEF_FORM"]))
-  # })
-  # 
-  # output$off_play <- renderUI({
-  #   list <- if(input$ODK == "O") getDDList("O_OFF_PLAY") else getDDList("D_OFF_PLAY")
-  #   selectInput("OFF_PLAY","OFF PLAY", choices = list, selected = unname(row()["OFF_PLAY"]))
-  # })
-  # 
-  # output$def_play <- renderUI({
-  #   list <- if(input$ODK == "O") c("") else getDDList("D_DEF_PLAY")
-  #   selectInput("DEF_PLAY", "DEF PLAY", choices = list, selected = unname(row()["DEF_PLAY"]))
-  # })
-  # 
-  # output$def_coverage <- renderUI({
-  #   list <- if(input$ODK == "D") c("") else getDDList("O_DEF_COVERAGE")
-  #   selectInput("COVERAGE", "COVERAGE", choices = list, selected = unname(row()["COVERAGE"]))
-  # })
-  # 
-  # output$def_blitz <- renderUI({
-  #   list <- if(input$ODK == "D") c("") else getDDList("O_DEF_BLITZ")
-  #   selectInput("BLITZ", "BLITZ", choices = list, selected = unname(row()["BLITZ"]))
-  # })
-  # 
-  # output$def_front <- renderUI({
-  #   list <- if(input$ODK == "D") c("") else getDDList("O_DEF_FRONT")
-  #   selectInput("FRONT", "FRONT", choices = list, selected = unname(row()["FRONT"]))
-  # })
+  output$downloadCurrent  <- downloadHandler(
+    filename = function() { 
+      paste('Dropdown Current', '.csv', sep='') 
+    },
+    content = function(file) {
+      out <- preSetDDs
+      colnames(out) <- preSetHeaderFriendly
+      write.csv(out, file, row.names = FALSE)
+    }
+  )
   
-  #   
-  #
+  
+  output$downloadTemplate <- downloadHandler(
+    filename = function() { 
+      paste('DropDown Template', '.csv', sep='') 
+    },
+    content = function(file) {
+      out <- preSetDDsTemplate
+      colnames(out) <- preSetHeaderFriendly
+      write.csv(out, file, row.names = FALSE)
+    }
+  )
+  
+  output$customLists <- DT::renderDataTable({
+    
+    inFile <- input$dds
+    
+    if (is.null(inFile))
+      return(preSetDDs)
+    
+    read.csv(inFile$datapath, stringsAsFactors = FALSE)
+    
+  }, colnames = preSetHeaderFriendly, server = FALSE, selection = "single",options = list(scrollX = TRUE, autoWidth =TRUE), rownames = FALSE)
+  
+  observeEvent(input$dd_submit,{
+    inFile <- input$dds
+    preSetDDs <<- read.csv(inFile$datapath, stringsAsFactors = FALSE)
+    colnames(preSetDDs)<<-preSetHeader
+    print(preSetDDs)
+    write.csv(preSetDDs,file = preSetDDPath, row.names = FALSE)
+    output$dd_success <- renderText({
+      req(input$dd_submit)
+      "Your Dropdowns have been succefully uploaded"
+    })
+  }, priority = 1)
+  
+  
+
+  
+  
+  #Export and Import data
+  
+  output$downloadCurrent_plays <- downloadHandler(
+    filename = function() { 
+      paste('Current Plays', '.csv', sep='') 
+    },
+    content = function(file) {
+      write.csv(ReadData(), file, row.names = FALSE)
+    }
+  )
+  
+  
+  output$downloadTemplate_plays <- downloadHandler(
+    filename = function() { 
+      paste('Plays Template', '.csv', sep='') 
+    },
+    content = function(file) {
+      write.csv(preSetPDTemplate, file, row.names = FALSE)
+    }
+  )
+  
+  output$currentPlays <- DT::renderDataTable({
+    input$submit
+    input$delete
+    input$new_game
+    
+    inFile <- input$pd
+    
+    if (is.null(inFile))
+      return(ReadData())
+    
+    read.csv(inFile$datapath,stringsAsFactors = FALSE)
+    
+  }, server = FALSE, selection = "single",options = list(scrollX = TRUE, autoWidth =TRUE), rownames = FALSE)
+  
+  observeEvent(input$pd_submit,{
+    inFile <- input$pd
+    responses <<- read.csv(inFile$datapath, stringsAsFactors = FALSE)
+    write.csv(responses, file = preSetPDPath, row.names = FALSE)
+    output$pd_success <- renderText({
+      req(input$pd_submit)
+      "Your Plays have been succefully uploaded"
+    })
+  }, priority = 1)
+  
+  #New Game
+  observeEvent(input$new_game,{
+    output$pass_text <- renderText({
+      req(input$new_game)
+      if(isolate(input$password)=="oceanside"){
+        responses <<- rm(responses)
+        UpdateScoreboard(CreateDefaultRecord(),session)
+        return("Successfully created a new game")
+      } else return("Password is wrong try again")
+    })
+  })
+  
+  
+  
+  
+  ###PLAY ENTRY
   observe({
-    print(input$responses_rows_selected)
-    print(ReadData()[input$responses_rows_selected, ])
+    input$pd_submit
+    input$dd_submit
+    input$responses_rows_select
     if(length(input$responses_rows_selected) > 0) UpdateTable(ReadData()[input$responses_rows_selected, ],session) else UpdateForm(input$ODK,session)
   })
   
-    responses <- CreateDefaultRecord()
     
     # input fields are treated as a group -- the row
     formData <- reactive({
@@ -85,25 +140,32 @@ shinyServer(function(input, output, session) {
     observeEvent(input$submit, {
       if (input$id != "0") {
         UpdateData(formData())
+        UpdateScoreboard(ScoreBoardCalc(), session)
+        UpdateForm(input$ODK,session)
       } else {
         CreateData(formData())
         UpdateScoreboard(ScoreBoardCalc(), session)
-        UpdateTable(CreateDefaultRecord(),session)
+        UpdateForm(input$ODK,session)
       }
+      write.csv(responses,preSetPDPath,row.names = FALSE)
       
     }, priority = 1)
     
     # Press "New" button -> display empty record
     observeEvent(input$new, {
-      UpdateScoreboard(ScoreBoardCalc(), session)
-      UpdateTable(CreateDefaultRecord(), session)
+      if(exists("responses")){
+        UpdateScoreboard(ScoreBoardCalc(), session)
+      } else UpdateScoreboard(CreateDefaultRecord(), session)
+      
+      UpdateForm(input$ODK, session)
     })
     
     # Press "Delete" button -> delete from data
     observeEvent(input$delete, {
       DeleteData(formData())
       UpdateScoreboard(ScoreBoardCalc(), session)
-      UpdateTable(CreateDefaultRecord(), session)
+      UpdateForm(input$ODK, session)
+      write.csv(responses,preSetPDPath,row.names = FALSE)
     }, priority = 1)
     
     # Select row in table -> show details in inputs
@@ -123,6 +185,8 @@ shinyServer(function(input, output, session) {
       input$submit
       #update after delete is clicked
       input$delete
+      input$pd_submit
+      input$new_game
       ReadData()
     }, server = FALSE, selection = "single",
     colnames = unname(GetMetadata(meta)$fields),options=list(order = list(0, 'desc'), scrollX = TRUE, autoWidth =TRUE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE
@@ -130,13 +194,21 @@ shinyServer(function(input, output, session) {
     
 
     #initialize handsome table
-    UpdateTable(CreateDefaultRecord(), session)
-    UpdateScoreboard(ScoreBoardCalc(), session)
+
+    # UpdateScoreboard(CreateDefaultRecord(), session)
+    # UpdateForm(input$ODK,session)
+    # reactive({
+    #   UpdateForm(input$ODK, session) 
+    # })
+    # 
+    UpdateScoreboard(ScoreBoardCalc(),session)
+    # UpdateForm("O")
     
     ###DRIVE SUMMARY
     output$drive_list <- renderUI({
       input$submit
       input$delete
+      input$pd_submit
       selectInput("drive", "SELECT A DRIVE", choices = sort(unique(ReadData()$DRIVE),TRUE))
     })
     
@@ -150,12 +222,14 @@ shinyServer(function(input, output, session) {
     drive_summary <- reactive({
       input$submit
       input$delete
+      input$pd_submit
       driveSummary(ReadData(),input$drive)
     })
     
     theDrive <- reactive({
       input$submit
       input$delete
+      input$pd_submit
       drive(ReadData(),input$drive)
     })
     
@@ -163,6 +237,7 @@ shinyServer(function(input, output, session) {
     output$drive_sum <- DT::renderDataTable({
       input$submit
       input$delete
+      input$pd_submit
       drive_summary()
     }, server = FALSE, selection = "single",
     colnames = unname(GetMetadata(driveSummaryMeta)$fields),options=list(order = list(0, 'asc'), scrollX = FALSE, autoWidth = TRUE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE
@@ -209,6 +284,7 @@ shinyServer(function(input, output, session) {
     oSide <- reactive({
       input$submit
       input$delete
+      input$pd_submit
       rpOnly(filter(ReadData(),ODK=="O"))
     })
     
@@ -216,6 +292,7 @@ shinyServer(function(input, output, session) {
     oSideD <- reactive({
       input$submit
       input$delete
+      input$pd_submit
       rpOnly(filter(ReadData(),ODK == "D"))
     })
     
@@ -399,12 +476,14 @@ shinyServer(function(input, output, session) {
     output$od_form_list <- renderUI({
       input$submit
       input$delete
+      input$pd_submit
       selectInput("od_formation", "SELECT A FORMATION", choices = unique(rpOnly(oSide())$DEF_FORM))
     })
    
     output$oo_form_list <- renderUI({
       input$submit
       input$delete
+      input$pd_submit
       selectInput("oo_formation", "SELECT A FORMATION", choices = unique(rpOnly(oSide())$OFF_FORM))
     })
     
@@ -550,6 +629,7 @@ shinyServer(function(input, output, session) {
     output$operf_pers_list <- renderUI({
       input$submit
       input$delete
+      input$pd_submit
       selectInput("operf_personnel", "SELECT A PERSONNEL", choices = unique(rpOnly(oSide())$PERSONNEL))
     })
     
@@ -603,6 +683,7 @@ shinyServer(function(input, output, session) {
     output$operf_form_list <- renderUI({
       input$submit
       input$delete
+      input$pd_submit
       selectInput("operf_form", "SELECT A FORMATION", choices = unique(rpOnly(oSide())$OFF_FORM))
     })
     
@@ -657,6 +738,7 @@ shinyServer(function(input, output, session) {
     output$operf_play_list <- renderUI({
       input$submit
       input$delete
+      input$pd_submit
       selectInput("operf_play", "SELECT A PLAY", choices = unique(rpOnly(oSide())$OFF_PLAY), selected = unique(rpOnly(oSide())$OFF_PLAY)[1])
     })
     

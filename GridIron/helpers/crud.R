@@ -75,6 +75,11 @@ UpdateForm <- function(odk, session){
   selectListDD("FRONT","O_DEF_FRONT", "", odk, session, FALSE)
 }
 
+getDDList <- function(column){
+  l<-unique(preSetDDs[,column][preSetDDs[,column]!=""])
+  if(is.factor(l)) return(levels(l)) else return(l)
+}
+
 
 selectList <- function(name,column_o,column_d,data,session,int = FALSE){
   if(is.null(data)) updateSelectInput(session, name, gsub("_"," ",name), choices = getDDList(column_o) ,selected = NULL) else{
@@ -111,9 +116,12 @@ selectListDD <- function(name,column_o,column_d,odk,session,int = FALSE){
     }
   }}
 
+NullToZero <- function(x){
+  if(is.null(x)) return(0) else return(x)
+}
 
 GetNextId <- function() {
-  if (exists("responses") && nrow(responses) > 0) {
+  if (exists("responses") && NullToZero(nrow(responses)) > 0) {
     max(as.integer(rownames(responses))) + 1
   } else {
     return (1)
