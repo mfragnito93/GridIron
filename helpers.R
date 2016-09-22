@@ -353,8 +353,8 @@ rpYards <- function(data){
   rp <- data.frame()
   rp[1,"PLAY_TYPE"] <- "RUN"
   rp[2,"PLAY_TYPE"] <- "PASS"
-  rp[1,"value"] <- as.integer(sum(filter(oppD, PLAY_TYPE == "RUN")$GN_LS))
-  rp[2,"value"] <- as.integer(sum(filter(oppD, PLAY_TYPE == "PASS")$GN_LS))
+  rp[1,"value"] <- as.integer(sum(filter(data, PLAY_TYPE == "RUN")$GN_LS))
+  rp[2,"value"] <- as.integer(sum(filter(data, PLAY_TYPE == "PASS")$GN_LS))
   return(rp)
 }
 
@@ -362,8 +362,8 @@ rpYardsAvg <- function(data){
   rp <- data.frame()
   rp[1,"PLAY_TYPE"] <- "RUN"
   rp[2,"PLAY_TYPE"] <- "PASS"
-  rp[1,"value"] <- round(mean(filter(oppD, PLAY_TYPE == "RUN")$GN_LS),2)
-  rp[2,"value"] <- round(mean(filter(oppD, PLAY_TYPE == "PASS")$GN_LS),2)
+  rp[1,"value"] <- round(mean(filter(data, PLAY_TYPE == "RUN")$GN_LS),2)
+  rp[2,"value"] <- round(mean(filter(data, PLAY_TYPE == "PASS")$GN_LS),2)
   return(rp)
 }
 

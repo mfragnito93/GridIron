@@ -141,12 +141,12 @@ shinyServer(function(input, output, session) {
     
     #Oceanside
     oSide <- function(){
-      filter(ReadData(),ODK=="O")
+      rpOnly(filter(ReadData(),ODK=="O"))
     }
     
     #Opponent
     oSideD <- function(){
-      filter(ReadData(),ODK == "D")
+      rpOnly(filter(ReadData(),ODK == "D"))
     }
     
     output$oside <- reactive({
@@ -336,10 +336,62 @@ shinyServer(function(input, output, session) {
     ##FORMATIONS
     output$ofd_formation_count <- renderValueBox({
       valueBox(
-        length(filter(oSide(),DEF_FORM == input$od_formation)$DRIVE), "DRIVES", icon = icon("list"),
+        length(filter(oSide(),DEF_FORM == input$od_formation)$DRIVE), "PLAYS RUN", icon = icon("list"),
         color = "black"
       )
     })
+    
+    output$ofd_formation_yards <- renderValueBox({
+      valueBox(
+        sum(filter(oSide(),DEF_FORM == input$od_formation)$GN_LS), "YDS AGNST", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    output$ofd_formation_pyards <- renderValueBox({
+      valueBox(
+        sum(filter(oSide(),DEF_FORM == input$od_formation, PLAY_TYPE == "PASS")$GN_LS), "PASS YDS AGNST", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    
+    output$ofd_formation_ryards <- renderValueBox({
+      valueBox(
+        sum(filter(oSide(),DEF_FORM == input$od_formation, PLAY_TYPE == "RUN")$GN_LS), "RUN YDS AGNST", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    output$ofo_formations_count <- renderValueBox({
+      valueBox(
+        length(filter(oSide(),OFF_FORM == input$oo_formation)$DRIVE), "PLAYS RAN", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    output$ofo_formation_yards <- renderValueBox({
+      valueBox(
+        sum(filter(oSide(),OFF_FORM == input$oo_formation)$GN_LS), "TOTAL YDS", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    output$ofo_formation_pyards <- renderValueBox({
+      valueBox(
+        sum(filter(oSide(),OFF_FORM == input$oo_formation, PLAY_TYPE == "PASS")$GN_LS), "PASS YDS", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    
+    output$ofo_formation_ryards <- renderValueBox({
+      valueBox(
+        sum(filter(oSide(),OFF_FORM == input$oo_formation, PLAY_TYPE == "RUN")$GN_LS), "RUN YDS", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
     
     output$ofd_coverages <- renderPlotly({
       plot.donut(getTable(filter(oSide(),DEF_FORM == input$od_formation),c("COVERAGE")), title = "Coverages", showLegend = T)
@@ -354,21 +406,162 @@ shinyServer(function(input, output, session) {
     })
     
     output$ofo_formations <- renderPlotly({
-      plot.donut(getTable(filter(oSide(),OFF_FORM == input$oo_formation),c("DEF_FORM")), title = "Defensive Formations")
+      plot.donut(getTable(filter(oSide(),OFF_FORM == input$oo_formation),c("DEF_FORM")), title = "Defensive Formations", showLegend = T)
     })
     
     output$ofo_coverages<- renderPlotly({
-      plot.donut(getTable(filter(oSide(),OFF_FORM == input$oo_formation),c("COVERAGE")), title = "Coverages")
+      plot.donut(getTable(filter(oSide(),OFF_FORM == input$oo_formation),c("COVERAGE")), title = "Coverages", showLegend = T)
     })
     
     output$ofo_blitzes <- renderPlotly({
-      plot.donut(getTable(filter(oSide(),OFF_FORM == input$oo_formation),c("BLITZ")), title = "Blitzes")
+      plot.donut(getTable(filter(oSide(),OFF_FORM == input$oo_formation),c("BLITZ")), title = "Blitzes", showLegend = T)
     })
     
     output$ofo_fronts <- renderPlotly({
-      plot.donut(getTable(filter(oSide(),OFF_FORM == input$oo_formation),c("FRONT")), title = "Fronts")
+      plot.donut(getTable(filter(oSide(),OFF_FORM == input$oo_formation),c("FRONT")), title = "Fronts", showLegend = T)
     })
     
     
+    ###PERFORMANCE
+    ##RUN PASS
+    output$operf_pass <- renderValueBox({
+      valueBox(
+        sum(filter(oSide(), PLAY_TYPE == "PASS")$GN_LS), "PASS YDS", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    
+    output$operf_run <- renderValueBox({
+      valueBox(
+        sum(filter(oSide(),PLAY_TYPE == "RUN")$GN_LS), "RUN YDS", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    output$operf_pass_avg <- renderValueBox({
+      valueBox(
+        round(mean(filter(oSide(),PLAY_TYPE == "PASS")$GN_LS),2), "PASS YDS/PLAY", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    
+    output$operf_run_avg <- renderValueBox({
+      valueBox(
+        round(mean(filter(oSide(),PLAY_TYPE == "RUN")$GN_LS),2), "RUN YDS/PLAY", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    output$operf_rp_form <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(oSide(),"DEF_FORM"), title = "Average YDs Against Def Formations", stack = "stack")
+    })
+    
+    output$operf_rp_coverage <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(oSide(),"COVERAGE"), title = "Average YDs Against Coverages", stack = "stack")
+    })
+    
+    output$operf_rp_blitzes <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(oSide(),"BLITZ"), title = "Average YDs Against Blitzes", stack = "stack")
+    })
+    
+    output$operf_rp_front <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(oSide(),"FRONT"), title = "Average YDs Against Fronts", stack = "stack")
+    })
+    
+    ##Personnel
+    output$operf_pass_pers <- renderValueBox({
+      valueBox(
+        sum(filter(oSide(), PLAY_TYPE == "PASS", PERSONNEL == input$operf_personnel)$GN_LS), "PASS YDS", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    
+    output$operf_run_pers <- renderValueBox({
+      valueBox(
+        sum(filter(oSide(),PLAY_TYPE == "RUN", PERSONNEL == input$operf_personnel)$GN_LS), "RUN YDS", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    output$operf_pass_avg_pers <- renderValueBox({
+      valueBox(
+        round(mean(filter(oSide(),PLAY_TYPE == "PASS", PERSONNEL == input$operf_personnel)$GN_LS),2), "PASS YDS/PLAY", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    
+    output$operf_run_avg_pers <- renderValueBox({
+      valueBox(
+        round(mean(filter(oSide(),PLAY_TYPE == "RUN", PERSONNEL == input$operf_personnel)$GN_LS),2), "RUN YDS/PLAY", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    output$operf_pers_form <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(filter(oSide(), PERSONNEL == input$operf_personnel),"DEF_FORM"), title = "Average YDs Against Def Formations", stack = "stack")
+    })
+    
+    output$operf_pers_coverage <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(filter(oSide(), PERSONNEL == input$operf_personnel),"COVERAGE"), title = "Average YDs Against Coverages", stack = "stack")
+    })
+    
+    output$operf_pers_blitzes <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(filter(oSide(), PERSONNEL == input$operf_personnel),"BLITZ"), title = "Average YDs Against Blitzes", stack = "stack")
+    })
+    
+    output$operf_pers_front <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(filter(oSide(), PERSONNEL == input$operf_personnel),"FRONT"), title = "Average YDs Against Fronts", stack = "stack")
+    })
+    
+    ##FORMATION
+    output$operf_pass_form <- renderValueBox({
+      valueBox(
+        sum(filter(oSide(), PLAY_TYPE == "PASS", OFF_FORM == input$operf_form)$GN_LS), "PASS YDS", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    
+    output$operf_run_form <- renderValueBox({
+      valueBox(
+        sum(filter(oSide(),PLAY_TYPE == "RUN", OFF_FORM == input$operf_form)$GN_LS), "RUN YDS", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    output$operf_pass_avg_form <- renderValueBox({
+      valueBox(
+        round(mean(filter(oSide(),PLAY_TYPE == "PASS", OFF_FORM == input$operf_form)$GN_LS),2), "PASS YDS/PLAY", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    
+    output$operf_run_avg_form <- renderValueBox({
+      valueBox(
+        round(mean(filter(oSide(),PLAY_TYPE == "RUN", OFF_FORM == input$operf_form)$GN_LS),2), "RUN YDS/PLAY", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    output$operf_form_form <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(filter(oSide(), OFF_FORM == input$operf_form),"DEF_FORM"), title = "Average YDs Against Def Formations", stack = "stack")
+    })
+    
+    output$operf_form_coverage <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(filter(oSide(), OFF_FORM == input$operf_form),"COVERAGE"), title = "Average YDs Against Coverages", stack = "stack")
+    })
+    
+    output$operf_form_blitzes <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(filter(oSide(), OFF_FORM == input$operf_form),"BLITZ"), title = "Average YDs Against Blitzes", stack = "stack")
+    })
+    
+    output$operf_form_front <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(filter(oSide(), OFF_FORM == input$operf_form),"FRONT"), title = "Average YDs Against Fronts", stack = "stack")
+    })
 })   
 

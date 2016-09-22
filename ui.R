@@ -18,7 +18,7 @@ sidebar <- dashboardSidebar(
              menuSubItem("Summary", icon = icon("th-large"), tabName = "o_summary"),
              menuSubItem("Down", icon = icon("th-large"), tabName = "o_down"),
              menuSubItem("Formation", icon = icon("th-large"), tabName = "o_formation"),
-             menuSubItem("Whats Working", icon = icon("th-large"), tabName = "o_play")
+             menuSubItem("Performance", icon = icon("th-large"), tabName = "o_performance")
              ),
     menuItem("Defense", icon = icon("th-large"),
              menuSubItem("Summary", icon = icon("th-large"), tabName = "d_summary"),
@@ -166,21 +166,72 @@ body <- dashboardBody(
                                 tabsetPanel(
                                   tabPanel("Defense",
                                            selectInput("od_formation", "SELECT A FORMATION", choices = unique(filter(rpOnly(responses),ODK=="O")$DEF_FORM)),
-                                           fluidRow(column(width = 4, valueBoxOutput("ofd_formation_count"))),
+                                           fluidRow(column(width = 3, valueBoxOutput("ofd_formation_count")),
+                                                    column(width = 3, valueBoxOutput("ofd_formation_yards")),
+                                                    column(width = 3, valueBoxOutput("ofd_formation_ryards")),
+                                                    column(width = 3, valueBoxOutput("ofd_formation_pyards"))
+                                                    ),
                                            column(width = 6, plotlyOutput("ofd_coverages")),
                                            column(width = 6, plotlyOutput("ofd_blitzes"),
                                                              plotlyOutput("ofd_fronts"))
                                            ),
                                   tabPanel("Offense",
                                            selectInput("oo_formation", "SELECT A FORMATION", choices = unique(filter(rpOnly(responses),ODK=="O")$OFF_FORM)),
-                                           plotlyOutput("ofo_formations"),
-                                           plotlyOutput("ofo_coverages"),
-                                           plotlyOutput("ofo_blitzes"),
-                                           plotlyOutput("ofo_fronts")
+                                           fluidRow(column(width = 3, valueBoxOutput("ofo_formations_count")),
+                                                    column(width = 3, valueBoxOutput("ofo_formation_yards")),
+                                                    column(width = 3, valueBoxOutput("ofo_formation_ryards")),
+                                                    column(width = 3, valueBoxOutput("ofo_formation_pyards"))
+                                           ),
+                                           column(width = 6, plotlyOutput("ofo_formations"),
+                                                             plotlyOutput("ofo_coverages")),
+                                           column(width = 6, plotlyOutput("ofo_blitzes"),
+                                                             plotlyOutput("ofo_fronts"))
                                            )
                                 )
                                 ))
             
+            ),
+    tabItem(tabName = "o_performance",
+            fluidRow(column(width = 12, h1("Performance Analysis")),
+                            tabsetPanel(
+                              tabPanel("Run Pass",
+                                       br(),
+                                       fluidRow(column(width = 3, valueBoxOutput("operf_run")),
+                                                column(width = 3, valueBoxOutput("operf_pass")),
+                                                column(width = 3, valueBoxOutput("operf_run_avg")),
+                                                column(width = 3, valueBoxOutput("operf_pass_avg"))
+                                       ),
+                                       column(width = 6, plotlyOutput("operf_rp_form"),
+                                                         plotlyOutput("operf_rp_blitzes")),
+                                       column(width = 6, plotlyOutput("operf_rp_coverage"),
+                                                         plotlyOutput("operf_rp_front"))),
+                              tabPanel("Personnel",
+                                       column(width =12,
+                                       selectInput("operf_personnel", "SELECT A PERSONNEL", choices = unique(filter(rpOnly(responses),ODK=="O")$PERSONNEL)),
+                                       fluidRow(column(width = 3, valueBoxOutput("operf_run_pers")),
+                                                column(width = 3, valueBoxOutput("operf_pass_pers")),
+                                                column(width = 3, valueBoxOutput("operf_run_avg_pers")),
+                                                column(width = 3, valueBoxOutput("operf_pass_avg_pers"))
+                                       ),
+                                       column(width = 6, plotlyOutput("operf_pers_form"),
+                                                         plotlyOutput("operf_pers_blitzes")),
+                                       column(width = 6, plotlyOutput("operf_pers_coverage"),
+                                                         plotlyOutput("operf_pers_front")))),
+                              tabPanel("Formation",
+                                       column(width =12,
+                                              selectInput("operf_form", "SELECT A FORMATION", choices = unique(filter(rpOnly(responses),ODK=="O")$OFF_FORM)),
+                                              fluidRow(column(width = 3, valueBoxOutput("operf_run_form")),
+                                                       column(width = 3, valueBoxOutput("operf_pass_form")),
+                                                       column(width = 3, valueBoxOutput("operf_run_avg_form")),
+                                                       column(width = 3, valueBoxOutput("operf_pass_avg_form"))
+                                              ),
+                                              column(width = 6, plotlyOutput("operf_form_form"),
+                                                     plotlyOutput("operf_form_blitzes")),
+                                              column(width = 6, plotlyOutput("operf_form_coverage"),
+                                                     plotlyOutput("operf_form_front")))),
+                              tabPanel("Play")
+                            )
+                     )
             )
     )
 )
