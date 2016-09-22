@@ -85,7 +85,8 @@ body <- dashboardBody(
             ),
     tabItem(tabName = "drive_summary",
             fluidRow(
-              column(width = 3, uiOutput('drive_list'))
+              column(width = 3, uiOutput('drive_list')),
+              column(width = 1, radioButtons("drive_odk", "Side", choices = c("O","D"), selected = "O"))
             ),
             fluidRow(
               column(width = 3, valueBoxOutput("ds_first_downs")),

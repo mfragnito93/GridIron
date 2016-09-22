@@ -98,6 +98,7 @@ shinyServer(function(input, output, session) {
   observeEvent(input$pd_submit,{
     inFile <- input$pd
     responses <<- read.csv(inFile$datapath, stringsAsFactors = FALSE)
+    rownames(responses) <- responses[["id"]]
     write.csv(responses, file = preSetPDPath, row.names = FALSE)
     output$pd_success <- renderText({
       req(input$pd_submit)
@@ -209,7 +210,7 @@ shinyServer(function(input, output, session) {
       input$submit
       input$delete
       input$pd_submit
-      selectInput("drive", "SELECT A DRIVE", choices = sort(unique(ReadData()$DRIVE),TRUE))
+      selectInput("drive", "SELECT A DRIVE", choices = sort(unique(filter(ReadData(),ODK == input$drive_odk)$DRIVE),TRUE))
     })
     
     # output$symList <- renderUI({
