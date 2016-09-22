@@ -284,38 +284,40 @@ body <- dashboardBody(
     tabItem(tabName = "film_room",
             tabsetPanel(
               tabPanel("Data",
-                       column(width = 12, fluidRow(h1("Play Data"))),
-                       column(width = 3,
-                              sidebarPanel(
-                                h3("Current Play Data"),
-                                downloadButton('downloadCurrent_plays', 'Download'),
-                                h3("Play Data Template"),
-                                downloadButton('downloadTemplate_plays', 'Download'),
-                                br(),
-                                h3("Upload Play Data"),
-                                fluidRow(
-                                  column(width = 8, fileInput('pd', 'Choose CSV File',
-                                                              accept=c('text/csv', 
-                                                                       'text/comma-separated-values,text/plain', 
-                                                                       '.csv'))),
-                                  column(width = 1, br(),actionButton("pd_submit","Submit"))),
-                                column(width = 12, fluidRow(textOutput("pd_success"))),
-                                fluidRow(
-                                  column(width = 12,
-                                         h3("Start a New Game"))),
-                                fluidRow(column(width =8, passwordInput("password", "Password:")),
-                                         column(width = 1, br(),actionButton("new_game","New Game"))
-                                ),
-                                fluidRow(column(width =8, br(),textOutput("pass_text")))
-                              )
-                       ),
-                       column(width = 9,
-                              fluidRow(DT::dataTableOutput("currentPlays"))
-                       )
+                       fluidRow(
+                         column(width = 12, column(width = 12, fluidRow(h1("Play Data")))),
+                         column(width = 5,
+                                sidebarPanel(
+                                  h3("Current Play Data"),
+                                  downloadButton('downloadCurrent_plays', 'Download'),
+                                  h3("Play Data Template"),
+                                  downloadButton('downloadTemplate_plays', 'Download'),
+                                  br(),
+                                  h3("Upload Play Data"),
+                                  fluidRow(
+                                    column(width = 6, fileInput('pd', 'Choose CSV File',
+                                                                accept=c('text/csv', 
+                                                                         'text/comma-separated-values,text/plain', 
+                                                                         '.csv'))),
+                                    column(width = 1, br(),actionButton("pd_submit","Submit"))),
+                                  column(width = 12, fluidRow(textOutput("pd_success"))),
+                                  fluidRow(
+                                    column(width = 12,
+                                           h3("Start a New Game"))),
+                                  fluidRow(column(width = 6, passwordInput("password", "Password:")),
+                                           column(width = 1, br(),actionButton("new_game","New Game"))
+                                  ),
+                                  fluidRow(column(width =8, br(),textOutput("pass_text")))
+                                )
+                         ),
+                         column(width = 7, column(width =12 ,
+                                                  fluidRow(DT::dataTableOutput("currentPlays")))
+                         ))
               ),
             tabPanel("Drop Downs",
-                     column(width = 12, fluidRow(h1("Custom Lists"))),
-                     column(width = 3,
+                     fluidRow(
+                     column(width = 12, column(width = 12, fluidRow(h1("Custom Lists")))),
+                     column(width = 5,
                             sidebarPanel(
                               h3("Current Drop Downs"),
                               downloadButton('downloadCurrent', 'Download'),
@@ -324,7 +326,7 @@ body <- dashboardBody(
                               br(),
                               h3("Custom Drop Down File"),
                               fluidRow(
-                                column(width = 8, fileInput('dds', 'Choose CSV File',
+                                column(width = 6, fileInput('dds', 'Choose CSV File',
                                                             accept=c('text/csv', 
                                                                      'text/comma-separated-values,text/plain', 
                                                                      '.csv'))),
@@ -332,11 +334,11 @@ body <- dashboardBody(
                               fluidRow(column(width=12,br(),textOutput("dd_success")))
                             )
                      ),
-                     column(width = 9,
-                            fluidRow(DT::dataTableOutput("customLists"))
+                     column(width = 7,column(width =12, 
+                            fluidRow(DT::dataTableOutput("customLists")))
                      )
                      
-                )
+                ))
             )
           )
     )
