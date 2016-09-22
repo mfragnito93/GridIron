@@ -109,7 +109,6 @@ shinyServer(function(input, output, session) {
   #New Game
   observeEvent(input$new_game,{
     output$pass_text <- renderText({
-      req(input$new_game)
       if(isolate(input$password)=="oceanside"){
         responses <<- rm(responses)
         UpdateScoreboard(CreateDefaultRecord(),session)

@@ -4,7 +4,6 @@ library(plotly)
 library(dplyr)
 library(shiny)
 library(shinydashboard)
-library(rhandsontable)
 library(plotly)
 library(DT)
 
