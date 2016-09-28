@@ -110,7 +110,11 @@ shinyServer(function(input, output, session) {
   observeEvent(input$new_game,{
     output$pass_text <- renderText({
       if(isolate(input$password)=="oceanside"){
+        write.csv(responses, file =paste(playArchive,paste(gsub(":","-",Sys.time()),".csv", sep=""),sep=""), row.names = FALSE)
         responses <<- rm(responses)
+        #Create archive
+        responses <- read.csv(preSetPDTemplatePath, stringsAsFactors = FALSE)
+        write.csv(responses, file = preSetPDPath)
         UpdateScoreboard(CreateDefaultRecord(),session)
         return("Successfully created a new game")
       } else return("Password is wrong try again")

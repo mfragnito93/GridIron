@@ -38,6 +38,8 @@ preSetDDTemplatePath <- "data/templates/dropdowns.csv"
 preSetPDPath <- "data/plays/plays.csv"
 preSetPDTemplatePath <- "data/templates/plays.csv"
 
+playArchive <- "data/plays/archive/"
+
 
 #preset header
 preSetHeader <- c("O_OFF_FORM","O_OFF_PLAY","O_LINE","D_DEF_FORM","O_DEF_FORM","O_DEF_FRONT","D_OFF_FORM","D_OFF_PLAY","D_DEF_PLAY","O_PERSONNEL","D_PERSONNEL","O_DEF_COVERAGE","O_DEF_BLITZ")
