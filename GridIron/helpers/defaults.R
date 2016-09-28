@@ -1,6 +1,6 @@
 #Defaults
 #colors
-teamColors <- c('#87B5FF','#010014','#D3D3D3','#03002B', '#3932ff', '#f7f3be')
+teamColors <- c('#87B5FF','#010014','#D3D3D3','#120b72', '#3932ff', '#133163')
 
 #metadata
 tableMeta <- c(HASH = "HASH", OFF_FORM = "OFF FORM",
