@@ -137,7 +137,6 @@ shinyServer(function(input, output, session) {
   formData <- reactive({
     entry<-sapply(names(GetMetadata(meta)$fields), function(x) input[[x]])
     default <- CreateDefaultRecord()[,!colnames(CreateDefaultRecord()) %in% c(entry)]
-    print(c(entry,default))
     c(entry,default)
   })
   
@@ -152,7 +151,6 @@ shinyServer(function(input, output, session) {
       UpdateScoreboard(ScoreBoardCalc(), session)
       UpdateForm(input$ODK,session)
     }
-    write.csv(responses,preSetPDPath,row.names = FALSE)
     
   }, priority = 1)
   

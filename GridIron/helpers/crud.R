@@ -142,6 +142,7 @@ CreateData <- function(data) {
   } else {
     responses <<- data
   }
+  write.csv(responses,preSetPDPath,row.names = FALSE)
 }
 
 #output curreent data frame does not return? 
@@ -156,11 +157,13 @@ ReadData <- function() {
 UpdateData <- function(data) {
   data <- CastData(data)
   responses[row.names(responses) == row.names(data), ] <<- data
+  write.csv(responses,preSetPDPath,row.names = FALSE)
 }
 
 #delete a row name
 DeleteData <- function(data) {
   responses <<- responses[row.names(responses) != unname(data["id"]), ]
+  write.csv(responses,preSetPDPath,row.names = FALSE)
 }
 
 #returns friendly meta data

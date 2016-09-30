@@ -1,4 +1,4 @@
-#charts
+#Plotly charts
 plot.bars <- function(data,stack = "group", title = "", xaxis = "", yaxis = "", showLegend = T){
   a <- list(
     title = xaxis,
