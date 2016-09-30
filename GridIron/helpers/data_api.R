@@ -115,3 +115,12 @@ defForm <- function(data,form){
 offForm <- function(data,form){
   return(filter(data,OFF_FORM == replaceNull(form)))
 }
+
+addFieldBucket <- function(data){
+  for (play in 1:length(data[,1])){
+    yard <- data[play,'YARD_LN']
+    side <- data[play,'SIDE']
+    data[play,'FIELD_BUCKET'] <- if (yard<10 && side == "-" ) "BACKED_UP" else if ((yard>=10 && side=="-") || yard>20) "MIDDLE" else if(yard<=20 && side =="+") "REDZONE"
+  }
+  return(data)
+}

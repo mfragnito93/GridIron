@@ -146,6 +146,7 @@ CreateData <- function(data) {
 
 #output curreent data frame does not return? 
 ReadData <- function() {
+  responses <- read.csv(preSetPDPath, stringsAsFactors = FALSE)
   if (exists("responses")) {
     responses
   }
