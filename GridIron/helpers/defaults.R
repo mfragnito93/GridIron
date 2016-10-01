@@ -42,7 +42,7 @@ playArchive <- "data/plays/archive/"
 
 
 #preset header
-preSetHeader <- c("O_OFF_FORM","O_LINE", "O_OFF_PLAY", "D_DEF_FORM","O_DEF_FORM","O_DEF_FRONT","D_OFF_FORM","D_OFF_PLAY","D_DEF_PLAY","O_PERSONNEL","D_PERSONNEL","O_DEF_COVERAGE","O_DEF_BLITZ")
+preSetHeader <- c("O_OFF_FORM", "O_LINE","O_OFF_PLAY","D_DEF_FORM","O_DEF_FORM","O_DEF_FRONT","D_OFF_FORM","D_OFF_PLAY","D_DEF_PLAY","O_PERSONNEL","D_PERSONNEL","O_DEF_COVERAGE","O_DEF_BLITZ")
 
 preSetHeaderFriendly <- c("Team O Formations","Team O Blocking","Team O Plays","Team D Formations","Opp D Formations","Opp D Fronts","Opp O Formations","Opp O Plays","Team D Plays","Team O Personnel","Opp O Perssonel","Opp D Coverage","Opp D Blitz")
 
