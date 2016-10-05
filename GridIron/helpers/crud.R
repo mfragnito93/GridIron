@@ -114,7 +114,7 @@ UpdateDefenseTable <- function(data, session){
 }
 
 UpdateOffenseForm <- function(odk, session){
-  updateRadioButtons(session, "ODK_O","SIDE",choices = c("O" = "O","D" = "D"), inline = TRUE,selected = as.character(ScoreBoardCalc()["ODK"]))
+  updateRadioButtons(session, "ODK_O","SIDE",choices = c("O" = "O","D" = "D"), inline = TRUE,selected = odk)
   selectListDD("PERSONNEL","O_PERSONNEL","D_PERSONNEL",odk,session,TRUE)
   selectListDD("OFF_FORM", "O_OFF_FORM", "D_OFF_FORM", odk,session,FALSE)
   selectListDD("OLINE", "O_LINE","",odk,session,FALSE)
@@ -122,12 +122,16 @@ UpdateOffenseForm <- function(odk, session){
 }
 
 UpdateDefenseForm <- function(odk, session){
-  updateRadioButtons(session, "ODK_D","SIDE",choices = c("O" = "O","D" = "D"), inline = TRUE,selected = as.character(ScoreBoardCalc()["ODK"]))
+  updateRadioButtons(session, "ODK_D","SIDE",choices = c("O" = "O","D" = "D"), inline = TRUE,selected = odk)
   selectListDD("DEF_FORM", "O_DEF_FORM", "D_DEF_FORM", odk,session,FALSE)
   selectListDD("DEF_PLAY","", "D_DEF_PLAY", odk, session, FALSE)
   selectListDD("COVERAGE", "O_DEF_COVERAGE", "", odk, session, FALSE)
   selectListDD("BLITZ", "O_DEF_BLITZ", "", odk, session, FALSE)
   selectListDD("FRONT","O_DEF_FRONT", "", odk, session, FALSE)
+}
+
+updateODK <- function(){
+  return(ScoreBoardCalc()[["ODK"]])
 }
 
 getDDList <- function(column){

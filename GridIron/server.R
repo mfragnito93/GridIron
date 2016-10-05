@@ -242,21 +242,21 @@ shinyServer(function(input, output, session) {
   observeEvent(input$submit_d, {
     if (input$id_d != "0") {
       UpdateData(formData_d(),"defense")
-      UpdateDefenseForm(input$ODK_D,session)
+      UpdateDefenseForm(updateODK(),session)
     } else {
       CreateData(formData_d(),"defense")
-      UpdateDefenseForm(input$ODK_D,session)
+      UpdateDefenseForm(updateODK(),session)
     }
   }, priority = 1)
   
   observeEvent(input$new_d, {
     UpdateDefenseTable(CreateDefaultRecord(defenseDefault,"defense"),session)
-    UpdateDefenseForm(input$ODK_D,session)
+    UpdateDefenseForm(updateODK(),session)
   })
   
   observeEvent(input$delete_d, {
     DeleteData(formData_d(),"defense")
-    UpdateDefenseForm(input$ODK_D,session)
+    UpdateDefenseForm(updateODK(),session)
   }, priority = 1)
   
   # Select row in table -> show details in inputs
