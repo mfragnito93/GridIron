@@ -1,39 +1,78 @@
 #CRUD
-CastData <- function(data) {
-  print(data)
-  datar <- data.frame(
-    id = data["id"],
-    ODK = data["ODK"], 
-    QTR = as.integer(data["QTR"]),
-    DRIVE = as.integer(data["DRIVE"]),
-    O_SCORE = as.integer(data["O_SCORE"]),
-    OPP_SCORE = as.integer(data["OPP_SCORE"]),
-    DN = as.integer(data["DN"]),
-    DIST = as.integer(data["DIST"]),
-    YARD_LN = as.integer(data["YARD_LN"]),
-    SIDE = data["SIDE"],
-    HASH = data["HASH"],
-    OFF_FORM = data["OFF_FORM"],
-    PERSONNEL = as.integer(data["PERSONNEL"]),
-    DEF_FORM = data["DEF_FORM"],
-    PLAY_TYPE = data["PLAY_TYPE"],
-    RESULT = data["RESULT"],
-    GN_LS = as.integer(data["GN_LS"]),
-    OLINE = data["OLINE"],
-    OFF_PLAY = data["OFF_PLAY"],
-    COVERAGE = data["COVERAGE"],
-    BLITZ = data["BLITZ"],
-    FRONT = data["FRONT"],
-    DEF_PLAY = data["DEF_PLAY"],
-    stringsAsFactors = FALSE)
-  
-  rownames(datar) <- data["id"]
+CastData <- function(data,type) {
+  if(type=="plays"){
+    datar <- data.frame(
+      id = data["id"],
+      ODK = data["ODK"], 
+      QTR = as.integer(data["QTR"]),
+      DRIVE = as.integer(data["DRIVE"]),
+      O_SCORE = as.integer(data["O_SCORE"]),
+      OPP_SCORE = as.integer(data["OPP_SCORE"]),
+      DN = as.integer(data["DN"]),
+      DIST = as.integer(data["DIST"]),
+      YARD_LN = as.integer(data["YARD_LN"]),
+      SIDE = data["SIDE"],
+      HASH = data["HASH"],
+      OFF_FORM = data["OFF_FORM"],
+      PERSONNEL = as.integer(data["PERSONNEL"]),
+      DEF_FORM = data["DEF_FORM"],
+      PLAY_TYPE = data["PLAY_TYPE"],
+      RESULT = data["RESULT"],
+      GN_LS = as.integer(data["GN_LS"]),
+      OLINE = data["OLINE"],
+      OFF_PLAY = data["OFF_PLAY"],
+      COVERAGE = data["COVERAGE"],
+      BLITZ = data["BLITZ"],
+      FRONT = data["FRONT"],
+      DEF_PLAY = data["DEF_PLAY"],
+      stringsAsFactors = FALSE)
+    rownames(datar) <- data["id"]}
+  else if(type=="scoreboard"){
+    datar <- data.frame(
+      id_o = data["id"],
+      ODK = data["ODK"], 
+      QTR = as.integer(data["QTR"]),
+      DRIVE = as.integer(data["DRIVE"]),
+      O_SCORE = as.integer(data["O_SCORE"]),
+      OPP_SCORE = as.integer(data["OPP_SCORE"]),
+      DN = as.integer(data["DN"]),
+      DIST = as.integer(data["DIST"]),
+      YARD_LN = as.integer(data["YARD_LN"]),
+      SIDE = data["SIDE"],
+      HASH = data["HASH"],
+      PLAY_TYPE = data["PLAY_TYPE"],
+      RESULT = data["RESULT"],
+      GN_LS = as.integer(data["GN_LS"]),
+      stringsAsFactors = FALSE)
+    rownames(datar) <- data["id"]}
+  else if(type == "offense"){
+    datar <- data.frame(
+      id_o = data["id_o"],
+      ODK_O = data["ODK_O"],
+      OFF_FORM = data["OFF_FORM"],
+      OLINE = data["OLINE"],
+      OFF_PLAY = data["OFF_PLAY"],
+      PERSONNEL = as.integer(data["PERSONNEL"]),
+      stringsAsFactors = FALSE)
+    rownames(datar) <- data["id_o"]
+  } else if(type == "defense"){
+    datar <- data.frame(
+      id_d = data["id_d"],
+      ODK_D = data["ODK_D"],
+      DEF_FORM = data["DEF_FORM"],
+      COVERAGE = data["COVERAGE"],
+      BLITZ = data["BLITZ"],
+      FRONT = data["FRONT"],
+      DEF_PLAY = data["DEF_PLAY"],
+      stringsAsFactors = FALSE)
+    rownames(datar) <- data["id_d"]
+  }
   return (datar)
 }
 
 #returns the deafualt dataframe using castData
-CreateDefaultRecord <- function() {
-  mydefault <- CastData(default)
+CreateDefaultRecord <- function(default,type) {
+  mydefault <- CastData(default,type)
   return (mydefault)
 }
 
@@ -50,29 +89,41 @@ UpdateScoreboard <- function(data, session) {
   updateNumericInput(session, "YARD_LN", value = as.integer(data["YARD_LN"]))
   updateRadioButtons(session, "SIDE","",choices = c("-"="-","+"="+"), selected = as.character(data["SIDE"]))
   updateSelectInput(session, "HASH","HASH", choices = c("L","M","R"), selected = unname(data["HASH"]))
-}
-
-UpdateTable <- function(data, session){
-  selectList("PERSONNEL","O_PERSONNEL","D_PERSONNEL",data,session,TRUE)
-  selectList("OFF_FORM", "O_OFF_FORM", "D_OFF_FORM", data,session,FALSE)
-  selectList("DEF_FORM", "O_DEF_FORM", "D_DEF_FORM", data,session,FALSE)
-  selectList("OLINE","O_LINE","",data,session,FALSE)
   updateSelectInput(session, "PLAY_TYPE","PLAY TYPE", choices = c("RUN","PASS","SPECIAL"), selected = unname(data["PLAY_TYPE"]))
   updateSelectInput(session, "RESULT", "RESULT",  choices = c("RUSH","COMPLETE","INCOMPLETE","FUMBLE","INTERCEPTION","SPECIAL"), selected = unname(data["RESULT"]))
-  updateTextInput(session, "GN_LS", value = unname(data["GN_LS"]))
-  selectList("OFF_PLAY","O_OFF_PLAY","D_OFF_PLAY", data, session, FALSE)
-  selectList("DEF_PLAY","", "D_DEF_PLAY", data, session, FALSE)
-  selectList("COVERAGE", "O_DEF_COVERAGE", "", data, session, FALSE)
-  selectList("BLITZ", "O_DEF_BLITZ", "", data, session, FALSE)
-  selectList("FRONT","O_DEF_FRONT", "", data, session, FALSE)
+  updateTextInput(session, "GN_LS", value = 0)
 }
 
-UpdateForm <- function(odk, session){
+UpdateOffenseTable <- function(data, session){
+  updateRadioButtons(session, "ODK_O","SIDE",choices = c("O" = "O","D" = "D"), inline = TRUE,selected = as.character(data["ODK_O"]))
+  updateTextInput(session, "id_o", value = unname(data["id_o"]))
+  selectList("PERSONNEL","O_PERSONNEL","D_PERSONNEL","ODK_O",data,session,TRUE)
+  selectList("OFF_FORM", "O_OFF_FORM", "D_OFF_FORM","ODK_O", data,session,FALSE)
+  selectList("OLINE","O_LINE","","ODK_O",data,session,FALSE)
+  selectList("OFF_PLAY","O_OFF_PLAY","D_OFF_PLAY", "ODK_O",data, session, FALSE)
+}
+
+UpdateDefenseTable <- function(data, session){
+  updateRadioButtons(session, "ODK_D","SIDE",choices = c("O" = "O","D" = "D"), inline = TRUE, selected = as.character(data["ODK_D"]))
+  updateTextInput(session, "id_d", value = unname(data["id_d"]))
+  selectList("DEF_FORM", "O_DEF_FORM", "D_DEF_FORM", "ODK_D",data,session,FALSE)
+  selectList("DEF_PLAY","", "D_DEF_PLAY", "ODK_D",data, session, FALSE)
+  selectList("COVERAGE", "O_DEF_COVERAGE", "", "ODK_D",data, session, FALSE)
+  selectList("BLITZ", "O_DEF_BLITZ", "","ODK_D", data, session, FALSE)
+  selectList("FRONT","O_DEF_FRONT", "", "ODK_D",data, session, FALSE)
+}
+
+UpdateOffenseForm <- function(odk, session){
+  updateRadioButtons(session, "ODK_O","SIDE",choices = c("O" = "O","D" = "D"), inline = TRUE,selected = as.character(ScoreBoardCalc()["ODK"]))
   selectListDD("PERSONNEL","O_PERSONNEL","D_PERSONNEL",odk,session,TRUE)
   selectListDD("OFF_FORM", "O_OFF_FORM", "D_OFF_FORM", odk,session,FALSE)
-  selectListDD("DEF_FORM", "O_DEF_FORM", "D_DEF_FORM", odk,session,FALSE)
   selectListDD("OLINE", "O_LINE","",odk,session,FALSE)
   selectListDD("OFF_PLAY","O_OFF_PLAY","D_OFF_PLAY", odk, session, FALSE)
+}
+
+UpdateDefenseForm <- function(odk, session){
+  updateRadioButtons(session, "ODK_D","SIDE",choices = c("O" = "O","D" = "D"), inline = TRUE,selected = as.character(ScoreBoardCalc()["ODK"]))
+  selectListDD("DEF_FORM", "O_DEF_FORM", "D_DEF_FORM", odk,session,FALSE)
   selectListDD("DEF_PLAY","", "D_DEF_PLAY", odk, session, FALSE)
   selectListDD("COVERAGE", "O_DEF_COVERAGE", "", odk, session, FALSE)
   selectListDD("BLITZ", "O_DEF_BLITZ", "", odk, session, FALSE)
@@ -85,9 +136,9 @@ getDDList <- function(column){
 }
 
 
-selectList <- function(name,column_o,column_d,data,session,int = FALSE){
+selectList <- function(name,column_o,column_d,column_odk,data,session,int = FALSE){
   if(is.null(data)) updateSelectInput(session, name, gsub("_"," ",name), choices = getDDList(column_o) ,selected = NULL) else{
-    if(as.character(data["ODK"]) == "O") {
+    if(as.character(data[column_odk]) == "O") {
       if(column_o == ""){
       updateSelectInput(session, name, gsub("_"," ",name), choices = c("") ,selected = NULL)
       } else { 
@@ -124,46 +175,40 @@ NullToZero <- function(x){
   if(is.null(x)) return(0) else return(x)
 }
 
-GetNextId <- function() {
-  if (exists("responses") && NullToZero(nrow(responses)) > 0) {
-    max(as.integer(rownames(responses))) + 1
+GetNextId <- function(type) {
+  if (ReadData(type)$id[[1]]!="TEMP") {
+    max(as.integer(ReadData(type)[,idMap[[type]]])) + 1
   } else {
     return (1)
   }
 }
 
 #adds row to data frame responses
-CreateData <- function(data) {
-  data <- CastData(data)
-  rownames(data) <- GetNextId()
-  data["id"] <- GetNextId()
-  if (exists("responses")) {
-    responses <<- rbind(responses, data)
-  } else {
-    responses <<- data
-  }
-  write.csv(responses,preSetPDPath,row.names = FALSE)
+CreateData <- function(data,type) {
+  data <- CastData(data,type)
+  rownames(data) <- GetNextId(type)
+  data[idMap[[type]]] <- GetNextId(type)
+  if(ReadData(type)[,idMap[[type]]][[1]]!="TEMP") EntryToCSV(rbind(ReadData(type),data),type)
+  else EntryToCSV(data,type)
 }
 
 #output curreent data frame does not return? 
-ReadData <- function() {
-  responses <- read.csv(preSetPDPath, stringsAsFactors = FALSE)
-  if (exists("responses")) {
-    responses
-  }
+ReadData <- function(type) {
+  readCSV(dataPathMap[[type]],templatePathMap[[type]])
 }
 
+###
 #updates table if there are changes
-UpdateData <- function(data) {
-  data <- CastData(data)
-  responses[row.names(responses) == row.names(data), ] <<- data
-  write.csv(responses,preSetPDPath,row.names = FALSE)
+UpdateData <- function(data,type) {
+  data <- CastData(data,type)
+  tmp <- ReadData(type)
+  tmp[tmp[,idMap[[type]]] == row.names(data), ] <- data
+  EntryToCSV(tmp,type)
 }
 
 #delete a row name
-DeleteData <- function(data) {
-  responses <<- responses[row.names(responses) != unname(data["id"]), ]
-  write.csv(responses,preSetPDPath,row.names = FALSE)
+DeleteData <- function(data,type) {
+  EntryToCSV(ReadData(type)[ReadData(type)[,idMap[[type]]] != unname(data[idMap[[type]]]), ],type)
 }
 
 #returns friendly meta data
@@ -182,3 +227,8 @@ MakeEntry <- function(data){
 UpdateEntry <- function(data){
   return(MakeEntry(data))
 }
+
+EntryToCSV<-function(data,type){
+  write.csv(data,dataPathMap[[type]],row.names = FALSE)
+}
+

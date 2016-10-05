@@ -1,8 +1,7 @@
 #Scoreboard calcs
 
 ScoreBoardCalc <- function(){
-  if (exists("responses")) {
-    lastPlay <- tail(ReadData(),1)
+    lastPlay <- tail(ReadData("scoreboard"),1)
     nextPlay <- lastPlay
     nextPlay["DN"]<-CalcDN(lastPlay)
     nextPlay["DIST"]<-CalcDist(lastPlay)
@@ -12,7 +11,7 @@ ScoreBoardCalc <- function(){
     nextPlay["ODK"]<-CalcODK(lastPlay)
     nextPlay["DRIVE"]<-CalcDrive(lastPlay)
     nextPlay["id"]<-"0"
-    return(nextPlay)}else return(CreateDefaultRecord())
+    return(nextPlay)
 }
 
 getDN <- function(data){

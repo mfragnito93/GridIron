@@ -37,53 +37,85 @@ body <- dashboardBody(
   
   tabItems(
     tabItem(tabName = "play_entry",
-            column(width = 12, fluidRow(column(width = 2, offset = 10, shinyjs::disabled(textInput("id", "PLAY", "0")))),
-                   fluidRow(h3("SCOREBOARD"),
-                            column(width = 3, column(width = 6, numericInput("DRIVE", "DRIVE", 0, min=1)),
-                                   column(width = 6, selectInput("QTR","QTR", choices = c(1,2,3,4,5), selected = 1))),
-                            column(width = 3, column(width = 3, radioButtons("SIDE",label = "", choices = c("-"="-","+"="+"), selected = "+")),
-                                   column(width = 6, numericInput("YARD_LN","YDLN", 0, min =0, max= 50)),
-                                   column(width = 3,  radioButtons("ODK","SIDE",choices = c("O" = "O","D" = "D")))
-                            ),
-                            column(width = 3, column(width = 6, numericInput("OPP_SCORE","OPP", 0)),
-                                   column(width = 6, numericInput("O_SCORE","OSIDE", 0), selected = "O")),
-                            column(width =3, column(width = 6, selectInput("DN","DOWN", choices = c(1,2,3,4), selected = 1)),
-                                   column(width = 6, numericInput("DIST","DIST", 0, min = 0)))
-                            
-                   ),
-                   column(width =12 ,
-                          fluidRow(h3("PLAY ENTRY"),
-                                   column(width = 3 ,selectInput("HASH","HASH", choices = c("L","M","R"), selected = NULL)),
-                                   column(width = 3, selectInput("PERSONNEL","PERSONNEL", choices = c(""), selected = NULL)),#selectInput("PERSONNEL","PERSONNEL", choices = if("ODK" == "O") getDDList("O_PERSONNEL") else getDDList("D_PERSONNEL"), selected = NULL)),
-                                   column(width = 3, selectInput("OFF_FORM","OFF FORM", choices = c(""), selected = NULL)),
-                                   column(width = 3, selectInput("DEF_FORM", "DEF FORM", choices = c(""), selected = NULL))
-                          ),
-                          fluidRow(#h3("POST-PLAY"),
-                            column(width = 3, selectInput("PLAY_TYPE","PLAY TYPE", choices = c("RUN","PASS","SPECIAL"), selected = NULL)),
-                            column(width = 3, selectInput("RESULT", "RESULT", choices = c("RUSH","COMPLETE","INCOMPLETE","FUMBLE","INTERCEPTION","SPECIAL"), selected = NULL)),
-                            column(width = 3, numericInput("GN_LS", "GN LS", 0))
-                          ),
-                          fluidRow(#h3("PLAY INFO"),
-                            column(width = 3, selectInput("OFF_PLAY","OFF PLAY", choices = c(""), selected = NULL)),
-                            column(width = 3, selectInput("OLINE","O-LINE", choices = c(""), selected = NULL)),
-                            column(width = 2, selectInput("COVERAGE", "COVERAGE", choices = c(""), selected = NULL)),
-                            column(width = 2, selectInput("BLITZ", "BLITZ", choices = c(""), selected = NULL)),
-                            column(width = 2, selectInput("FRONT", "FRONT", choices = c(""), selected = NULL))
-                          ),
-                          fluidRow(
-                            column(width = 3, selectInput("DEF_PLAY", "DEF PLAY", choices = c(""), selected = NULL)),
-                            column(width = 9 , column(width = 12, align = "right",
-                                                      br(),
-                                                      actionButton("submit", "Submit"),
-                                                      actionButton("new", "New"),
-                                                      actionButton("delete", "Delete")))
-                          )
-                   )
-            ),
-            br(),
-            br(),
-            fluidRow(
-              column(width = 12, column(width = 12, DT::dataTableOutput("responses"))))
+            tabsetPanel(
+              tabPanel("Scoreboard",
+                       fluidRow(column(width = 2, offset = 10, shinyjs::disabled(textInput("id", "PLAY", "0")))),
+                       fluidRow(column(width=12,h3("SCOREBOARD")),
+                                column(width = 3, column(width = 6, numericInput("DRIVE", "DRIVE", 0, min=1)),
+                                       column(width = 6, selectInput("QTR","QTR", choices = c(1,2,3,4,5), selected = 1))),
+                                column(width = 3, column(width = 3, radioButtons("SIDE",label = "", choices = c("-"="-","+"="+"), selected = "+")),
+                                       column(width = 6, numericInput("YARD_LN","YDLN", 0, min =0, max= 50)),
+                                       column(width = 3,  radioButtons("ODK","SIDE",choices = c("O" = "O","D" = "D")))
+                                ),
+                                column(width = 3, column(width = 6, numericInput("OPP_SCORE","OPP", 0)),
+                                       column(width = 6, numericInput("O_SCORE","OSIDE", 0), selected = "O")),
+                                column(width =3, column(width = 6, selectInput("DN","DOWN", choices = c(1,2,3,4), selected = 1)),
+                                       column(width = 6, numericInput("DIST","DIST", 0, min = 0)))
+                       ),
+                       fluidRow(column(width=12,h3("PLAY")),
+                         column(width =12, 
+                                column(width = 3 ,selectInput("HASH","HASH", choices = c("L","M","R"), selected = NULL)),
+                                column(width = 3, selectInput("PLAY_TYPE","PLAY TYPE", choices = c("RUN","PASS","SPECIAL"), selected = NULL)),
+                                column(width = 3, selectInput("RESULT", "RESULT", choices = c("RUSH","COMPLETE","INCOMPLETE","FUMBLE","INTERCEPTION","SPECIAL"), selected = NULL)),
+                                column(width = 3, numericInput("GN_LS", "GN LS", 0))
+                                )),
+                       fluidRow(column(width=12,column(width=12 ,
+                                         actionButton("submit_s", "Submit"),
+                                         actionButton("new_s", "New"),
+                                         actionButton("delete_s", "Delete")))),
+                       fluidRow(column(width = 12,  DT::dataTableOutput("scoreboard")))
+                       ),
+              tabPanel("Offense", column(width = 2, offset = 9, shinyjs::disabled(textInput("id_o", "PLAY", "0"))),
+                       column(width = 12, 
+                       fluidRow(h3("BOTH"),
+                                column(width = 2, radioButtons("ODK_O","SIDE",choices = c("O" = "O","D" = "D"),inline=TRUE)),
+                                column(width = 3, selectInput("OFF_FORM","OFF FORM", choices = c(""), selected = NULL)),
+                                column(width = 3, selectInput("OFF_PLAY","OFF PLAY", choices = c(""), selected = NULL)),
+                                column(width = 3, selectInput("PERSONNEL", "PERSONNEL", choices = c(""), selected = NULL))),
+                       fluidRow(h3("OCEANSIDE"),
+                                column(width = 3, selectInput("OLINE","O-LINE", choices = c(""), selected = NULL))),
+                       fluidRow(column(width =12 ,
+                                       actionButton("submit_o", "Submit"),
+                                       actionButton("new_o", "New"),
+                                       actionButton("delete_o", "Delete")))),
+                       fluidRow(column(width = 12, column(width = 12, DT::dataTableOutput("offense"))))
+                       ),
+              tabPanel("Defense", column(width = 2, offset = 9, shinyjs::disabled(textInput("id_d", "PLAY", "0"))),
+                       column(width =12 ,
+                       fluidRow(h3("BOTH"),
+                                column(width = 2, radioButtons("ODK_D","SIDE",choices = c("O" = "O","D" = "D"),inline=TRUE)),
+                                column(width = 3, selectInput("DEF_FORM", "DEF FORM", choices = c(""), selected = NULL))),
+                       fluidRow(h3("OCEANSIDE"),
+                                column(width = 3, selectInput("DEF_PLAY", "DEF PLAY", choices = c(""), selected = NULL))),
+                       fluidRow(h3("OPPONENT"),
+                                column(width = 2, selectInput("COVERAGE", "COVERAGE", choices = c(""), selected = NULL)),
+                                column(width = 2, selectInput("BLITZ", "BLITZ", choices = c(""), selected = NULL)),
+                                column(width = 2, selectInput("FRONT", "FRONT", choices = c(""), selected = NULL))),
+                       fluidRow(column(width =12 ,
+                                actionButton("submit_d", "Submit"),
+                                actionButton("new_d", "New"),
+                                actionButton("delete_d", "Delete")))),
+                       fluidRow(column(width = 12, column(width = 12, DT::dataTableOutput("defense"))))
+                       )
+            )
+            # column(width = 12, fluidRow(column(width = 2, offset = 10, shinyjs::disabled(textInput("id", "PLAY", "0")))),
+            #        column(width =12 ,
+            # 
+            #               fluidRow(#h3("POST-PLAY"),
+            #                 
+            #               ),
+            #               fluidRow(#h3("PLAY INFO"),
+            #               ),
+            #               fluidRow(
+            #                 column(width = 9 , column(width = 12, align = "right",
+            #                                           
+            #               )
+            #        )
+            # ),
+            # br(),
+            # br(),
+            # fluidRow(
+            #   column(width = 12, column(width = 12, DT::dataTableOutput("responses"))))
     ),
     tabItem(tabName = "drive_summary",
             fluidRow(

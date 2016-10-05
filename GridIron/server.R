@@ -5,6 +5,7 @@
 # http://shiny.rstudio.com
 #
 
+# scoreboardData <- reactiveFileReader(1000,session,)
 
 
 shinyServer(function(input, output, session) {
@@ -48,17 +49,12 @@ shinyServer(function(input, output, session) {
     inFile <- input$dds
     preSetDDs <<- read.csv(inFile$datapath, stringsAsFactors = FALSE)
     colnames(preSetDDs)<<-preSetHeader
-    print(preSetDDs)
     write.csv(preSetDDs,file = preSetDDPath, row.names = FALSE)
     output$dd_success <- renderText({
       req(input$dd_submit)
       "Your Dropdowns have been succefully uploaded"
     })
   }, priority = 1)
-  
-  
-  
-  
   
   #Export and Import data
   
@@ -97,9 +93,9 @@ shinyServer(function(input, output, session) {
   
   observeEvent(input$pd_submit,{
     inFile <- input$pd
-    responses <<- read.csv(inFile$datapath, stringsAsFactors = FALSE)
-    rownames(responses) <- responses[["id"]]
-    write.csv(responses, file = preSetPDPath, row.names = FALSE)
+    plays <<- read.csv(inFile$datapath, stringsAsFactors = FALSE)
+    rownames(plays) <- plays[["id"]]
+    write.csv(plays, file = preSetPDPath, row.names = FALSE)
     output$pd_success <- renderText({
       req(input$pd_submit)
       "Your Plays have been succefully uploaded"
@@ -110,11 +106,11 @@ shinyServer(function(input, output, session) {
   observeEvent(input$new_game,{
     output$pass_text <- renderText({
       if(isolate(input$password)=="oceanside"){
-        write.csv(responses, file =paste(playArchive,paste(gsub(":","-",Sys.time()),".csv", sep=""),sep=""), row.names = FALSE)
-        responses <<- rm(responses)
+        write.csv(plays, file =paste(playArchive,paste(gsub(":","-",Sys.time()),".csv", sep=""),sep=""), row.names = FALSE)
+        plays <<- rm(plays)
         #Create archive
-        responses <- read.csv(preSetPDTemplatePath, stringsAsFactors = FALSE)
-        write.csv(responses, file = preSetPDPath)
+        plays <- read.csv(preSetPDTemplatePath, stringsAsFactors = FALSE)
+        write.csv(plays, file = preSetPDPath)
         UpdateScoreboard(CreateDefaultRecord(),session)
         return("Successfully created a new game")
       } else return("Password is wrong try again")
@@ -122,90 +118,248 @@ shinyServer(function(input, output, session) {
   })
   
   
-  
-  
   ###PLAY ENTRY
-  observe({
-    input$pd_submit
-    input$dd_submit
-    input$responses_rows_select
-    if(length(input$responses_rows_selected) > 0) UpdateTable(ReadData()[input$responses_rows_selected, ],session) else UpdateForm(input$ODK,session)
-  })
-  
-  
-  # input fields are treated as a group -- the row
-  formData <- reactive({
-    entry<-sapply(names(GetMetadata(meta)$fields), function(x) input[[x]])
-    default <- CreateDefaultRecord()[,!colnames(CreateDefaultRecord()) %in% c(entry)]
+  #scoreboard
+  formData_s <- reactive({
+    entry<-sapply(names(GetMetadata(scoreboardMeta)$fields), function(x) input[[x]])
+    default <- CreateDefaultRecord(scoreboardDefault,"scoreboard")[,!colnames(CreateDefaultRecord(scoreboardDefault,"scoreboard")) %in% names(entry)]
     c(entry,default)
   })
   
-  # Click "Submit" button -> save data
-  observeEvent(input$submit, {
+  observeEvent(input$submit_s, {
     if (input$id != "0") {
-      UpdateData(formData())
+      UpdateData(formData_s(),"scoreboard")
       UpdateScoreboard(ScoreBoardCalc(), session)
-      UpdateForm(input$ODK,session)
     } else {
-      CreateData(formData())
+      CreateData(formData_s(),"scoreboard")
       UpdateScoreboard(ScoreBoardCalc(), session)
-      UpdateForm(input$ODK,session)
     }
-    
   }, priority = 1)
   
-  # Press "New" button -> display empty record
-  observeEvent(input$new, {
-    if(exists("responses")){
-      UpdateScoreboard(ScoreBoardCalc(), session)
-    } else UpdateScoreboard(CreateDefaultRecord(), session)
-    
-    UpdateForm(input$ODK, session)
+  observeEvent(input$new_s, {
+     UpdateScoreboard(ScoreBoardCalc(), session)
   })
   
-  # Press "Delete" button -> delete from data
-  observeEvent(input$delete, {
-    DeleteData(formData())
+  observeEvent(input$delete_s, {
+    DeleteData(formData_s(),"scoreboard")
     UpdateScoreboard(ScoreBoardCalc(), session)
-    UpdateForm(input$ODK, session)
-    write.csv(responses,preSetPDPath,row.names = FALSE)
   }, priority = 1)
   
   # Select row in table -> show details in inputs
-  observeEvent(input$responses_rows_selected, {
-    if (length(input$responses_rows_selected) > 0) {
-      data <- ReadData()[input$responses_rows_selected, ]
+  observeEvent(input$scoreboard_rows_selected, {
+    if (length(input$scoreboard_rows_selected) > 0) {
+      data <- ReadData("scoreboard")[input$scoreboard_rows_selected, ]
       UpdateScoreboard(data,session)
-      UpdateTable(data,session)
     }
-    
   })
   
-  
   # display table
-  output$responses <- DT::renderDataTable({
-    #update after submit is clicked
-    input$submit
-    #update after delete is clicked
-    input$delete
+  output$scoreboard <- DT::renderDataTable({
+    input$submit_s
+    input$delete_s
     input$pd_submit
     input$new_game
-    ReadData()
+    ReadData("scoreboard")
   }, server = FALSE, selection = "single",
-  colnames = unname(GetMetadata(meta)$fields),options=list(order = list(0, 'desc'), scrollX = TRUE, autoWidth =TRUE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE
+  colnames = unname(GetMetadata(scoreboardMeta)$fields),options=list(order = list(0, 'desc'), scrollX = TRUE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE
+  ) 
+  
+  UpdateScoreboard(ScoreBoardCalc(),session)
+  
+  
+  
+  ######offense####
+  observe({
+    input$pd_submit
+    input$dd_submit
+    input$offense_rows_selected
+    if(length(input$offense_rows_selected) > 0) UpdateOffenseTable(ReadData("offense")[input$offense_rows_selected, ],session) else UpdateOffenseForm(input$ODK_O,session)
+  })
+
+  
+  formData_o <- reactive({
+    entry<-sapply(names(GetMetadata(offenseMeta)$fields), function(x) input[[x]])
+    default <- CreateDefaultRecord(offenseDefault,"offense")[,!colnames(CreateDefaultRecord(offenseDefault,"offense")) %in% names(entry)]
+    c(entry,default)
+  })
+  
+  observeEvent(input$submit_o, {
+    if (input$id_o != "0") {
+      UpdateData(formData_o(),"offense")
+      UpdateOffenseForm(input$ODK_O,session)
+    } else {
+      CreateData(formData_o(),"offense")
+      UpdateOffenseForm(input$ODK_O,session)
+    }
+  }, priority = 1)
+  
+  observeEvent(input$new_o, {
+    UpdateOffenseTable(CreateDefaultRecord(offenseDefault,"offense"),session)
+    UpdateOffenseForm(input$ODK_O,session)
+  })
+  
+  observeEvent(input$delete_o, {
+    DeleteData(formData_o(),"offense")
+    UpdateOffenseForm(input$ODK_O,session)
+  }, priority = 1)
+  
+  # Select row in table -> show details in inputs
+  observeEvent(input$offense_rows_selected, {
+    if (length(input$offense_rows_selected) > 0) {
+      data <- ReadData("offense")[input$offense_rows_selected, ]
+      UpdateOffenseTable(data,session)
+    }
+  })
+  
+  # display table
+  output$offense <- DT::renderDataTable({
+    input$submit_o
+    input$delete_o
+    input$pd_submit
+    input$new_game
+    ReadData("offense")
+  }, server = FALSE, selection = "single",
+  colnames = unname(GetMetadata(offenseMeta)$fields),options=list(order = list(0, 'desc'), scrollX = TRUE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE
   ) 
   
   
-  #initialize handsome table
+  ####Defense###
   
-  # UpdateScoreboard(CreateDefaultRecord(), session)
-  # UpdateForm(input$ODK,session)
-  # reactive({
-  #   UpdateForm(input$ODK, session) 
+  observe({
+    input$pd_submit
+    input$dd_submit
+    input$defense_rows_selected
+    if(length(input$defense_rows_selected) > 0) UpdateDefenseTable(ReadData("defense")[input$defense_rows_selected, ],session) else UpdateDefenseForm(input$ODK_D,session)
+  })
+  
+  
+  formData_d <- reactive({
+    entry<-sapply(names(GetMetadata(defenseMeta)$fields), function(x) input[[x]])
+    default <- CreateDefaultRecord(defenseDefault,"defense")[,!colnames(CreateDefaultRecord(defenseDefault,"defense")) %in% names(entry)]
+    c(entry,default)
+  })
+  
+  observeEvent(input$submit_d, {
+    if (input$id_d != "0") {
+      UpdateData(formData_d(),"defense")
+      UpdateDefenseForm(input$ODK_D,session)
+    } else {
+      CreateData(formData_d(),"defense")
+      UpdateDefenseForm(input$ODK_D,session)
+    }
+  }, priority = 1)
+  
+  observeEvent(input$new_d, {
+    UpdateDefenseTable(CreateDefaultRecord(defenseDefault,"defense"),session)
+    UpdateDefenseForm(input$ODK_D,session)
+  })
+  
+  observeEvent(input$delete_d, {
+    DeleteData(formData_d(),"defense")
+    UpdateDefenseForm(input$ODK_D,session)
+  }, priority = 1)
+  
+  # Select row in table -> show details in inputs
+  observeEvent(input$defense_rows_selected, {
+    if (length(input$defense_rows_selected) > 0) {
+      data <- ReadData("defense")[input$defense_rows_selected, ]
+      UpdateDefenseTable(data,session)
+    }
+  })
+  
+  # display table
+  output$defense <- DT::renderDataTable({
+    input$submit_d
+    input$delete_d
+    input$pd_submit
+    input$new_game
+    ReadData("defense")
+  }, server = FALSE, selection = "single",
+  colnames = unname(GetMetadata(defenseMeta)$fields),options=list(order = list(0, 'desc'), scrollX = TRUE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE
+  ) 
+  
+  
+  
+  
+  
+  #come back to
+  # observe({
+  #   input$pd_submit
+  #   input$dd_submit
+  #   input$plays_rows_select
+  #   if(length(input$plays_rows_selected) > 0) UpdateTable(ReadData()[input$plays_rows_selected, ],session) else UpdateForm(input$ODK,session)
   # })
   # 
-  UpdateScoreboard(ScoreBoardCalc(),session)
-  # UpdateForm("O")
+  # 
+  # # input fields are treated as a group -- the row
+  # formData <- reactive({
+  #   entry<-sapply(names(GetMetadata(meta)$fields), function(x) input[[x]])
+  #   default <- CreateDefaultRecord()[,!colnames(CreateDefaultRecord()) %in% c(entry)]
+  #   c(entry,default)
+  # })
+  # 
+  # # Click "Submit" button -> save data
+  # observeEvent(input$submit, {
+  #   if (input$id != "0") {
+  #     UpdateData(formData())
+  #     UpdateScoreboard(ScoreBoardCalc(), session)
+  #     UpdateForm(input$ODK,session)
+  #   } else {
+  #     CreateData(formData())
+  #     UpdateScoreboard(ScoreBoardCalc(), session)
+  #     UpdateForm(input$ODK,session)
+  #   }
+  #   
+  # }, priority = 1)
+  # 
+  # # Press "New" button -> display empty record
+  # observeEvent(input$new, {
+  #   if(exists("plays")){
+  #     UpdateScoreboard(ScoreBoardCalc(), session)
+  #   } else UpdateScoreboard(CreateDefaultRecord(), session)
+  #   
+  #   UpdateForm(input$ODK, session)
+  # })
+  # 
+  # # Press "Delete" button -> delete from data
+  # observeEvent(input$delete, {
+  #   DeleteData(formData())
+  #   UpdateScoreboard(ScoreBoardCalc(), session)
+  #   UpdateForm(input$ODK, session)
+  #   write.csv(plays,preSetPDPath,row.names = FALSE)
+  # }, priority = 1)
+  # 
+  # # Select row in table -> show details in inputs
+  # observeEvent(input$plays_rows_selected, {
+  #   if (length(input$plays_rows_selected) > 0) {
+  #     data <- ReadData()[input$plays_rows_selected, ]
+  #     UpdateScoreboard(data,session)
+  #     UpdateTable(data,session)
+  #   }
+  #   
+  # })
+  # 
+  # 
+  # # display table
+  # output$plays <- DT::renderDataTable({
+  #   #update after submit is clicked
+  #   input$submit
+  #   #update after delete is clicked
+  #   input$delete
+  #   input$pd_submit
+  #   input$new_game
+  #   ReadData()
+  # }, server = FALSE, selection = "single",
+  # colnames = unname(GetMetadata(meta)$fields),options=list(order = list(0, 'desc'), scrollX = TRUE, autoWidth =TRUE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE
+  # ) 
+  # 
+  # UpdateScoreboard(ScoreBoardCalc(),session)
+  # 
+  
+  
+  
+  
+  
   
   ###DRIVE SUMMARY
   output$drive_list <- renderUI({
@@ -1499,6 +1653,17 @@ shinyServer(function(input, output, session) {
     plot.bars(getTable(filter(addFieldBucket(oSideD()),FIELD_BUCKET=="REDZONE"),c("PLAY_TYPE","HASH")), title = "Redzone", stack = "stack", showLegend = T)
   })
   
+  autoInvalidate <- reactiveTimer(5000, session)
+
+ observeEvent(input$submit2,{
+      counter<<-counter+1
+      print(counter)
+     })
+ 
+ output$counte <- renderText({
+   autoInvalidate()
+    counter
+ })
   
 })   
 
