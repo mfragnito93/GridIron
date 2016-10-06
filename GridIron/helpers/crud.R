@@ -213,7 +213,7 @@ CreateData <- function(data,type) {
 #output curreent data frame does not return? 
 ReadData <- function(type) {
   tmp <- readCSV(dataPathMap[[type]],templatePathMap[[type]])
-  tmp[,1] <- rownames(tmp)
+  if(nrow(tmp)>1) tmp[,1] <- rownames(tmp)
   return(tmp)
 }
 
@@ -238,6 +238,21 @@ GetMetadata <- function(data) {
   return (result)
 }
 
+GetMetadataNames <-function(data){
+  return(names(GetMetadata(data)$fields))
+}
+
+GetMetadataValues <- function(data){
+  return(unname(GetMetadata(data)$fields))
+}
+
+GetMetaMinusFirstN <- function(data,n){
+  return(GetMetadataNames(data)[!GetMetadataNames(data) %in% GetMetaFirstN(data,n)])
+}
+
+GetMetaFirstN <- function(data,n){
+  return(head(GetMetadataNames(data),n))
+}
 
 MakeEntry <- function(data){
   datar<-as.list(data)
@@ -255,7 +270,7 @@ EntryToCSV<-function(data,type){
 MergeData <- function(idMap,odkMap) {
   tmp <- ReadData(names(idMap)[1])
   for(type in 2:length(names(idMap))){
-    tmp<-merge(tmp,select(ReadData(names(idMap)[type]),-which(colnames(ReadData(names(idMap)[type]))==odkMap[names(idMap)[type]])),by =1)
+    tmp<-merge(tmp,select(ReadData(names(idMap)[type]),-which(colnames(ReadData(names(idMap)[type]))==odkMap[names(idMap)[type]])),by =1, sort = FALSE)
   }
   return(tmp)
 }
@@ -275,3 +290,16 @@ ReadO <- function(){
 ReadD <- function(){
   return(ReadData("defense"))
 }
+
+#n here is the number of common columns need for each split. IE 2 for the first two columns of the data should be in each split
+DataSplit <- function(data,n = 2){
+  o<-data[,c(GetMetaFirstN(scoreboardMeta,n),GetMetaMinusFirstN(offenseMeta,n))]
+  colnames(o)[1:n]<-GetMetaFirstN(offenseMeta,n)
+  write.csv(o,dataPathMap[["offense"]],row.names = FALSE)
+  d<-data[,c(GetMetaFirstN(scoreboardMeta,n),GetMetaMinusFirstN(defenseMeta,n))]
+  colnames(d)[1:n]<-GetMetaFirstN(defenseMeta,n)
+  write.csv(d,dataPathMap[["defense"]],row.names = FALSE)
+  s<-data[,c(GetMetadataNames(scoreboardMeta))]
+  write.csv(s,dataPathMap[["scoreboard"]],row.names = FALSE)
+}
+

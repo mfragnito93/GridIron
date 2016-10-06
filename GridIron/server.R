@@ -91,29 +91,26 @@ shinyServer(function(input, output, session) {
     
     read.csv(inFile$datapath,stringsAsFactors = FALSE)
     
-  }, server = FALSE, selection = "single",options = list(scrollX = TRUE, autoWidth =TRUE), rownames = FALSE)
+  }, server = FALSE, selection = "single",options = list(order = list(0, 'asc'), scrollX = TRUE, autoWidth =TRUE), rownames = FALSE)
   
-  ##NEEDS TO BE UPDATED
+  
   observeEvent(input$pd_submit,{
     inFile <- input$pd
-   # plays <<- read.csv(inFile$datapath, stringsAsFactors = FALSE)
-    #rownames(plays) <- plays[["id"]]
-    #write.csv(plays, file = preSetPDPath, row.names = FALSE)
+    DataSplit(read.csv(inFile$datapath, stringsAsFactors = FALSE))
     output$pd_success <- renderText({
       req(input$pd_submit)
       "Your Plays have been succefully uploaded"
     })
   }, priority = 1)
   
-  #New Game -- NEEDS to BE MODIFIED
+  #New Game
   observeEvent(input$new_game,{
     output$pass_text <- renderText({
       if(isolate(input$password)=="oceanside"){
-        write.csv(GetData(), file =paste(playArchive,paste(gsub(":","-",Sys.time()),".csv", sep=""),sep=""), row.names = FALSE)
         #Create archive
-        #plays <- read.csv(preSetPDTemplatePath, stringsAsFactors = FALSE)
-        #write.csv(plays, file = preSetPDPath)
-        UpdateScoreboard(CreateDefaultRecord(),session)
+        write.csv(GetData(), file =paste(playArchive,paste(gsub(":","-",Sys.time()),".csv", sep=""),sep=""), row.names = FALSE)
+        DataSplit(read.csv(preSetPDTemplatePath, stringsAsFactors = FALSE))
+        UpdateScoreboard(CreateDefaultRecord(scoreboardDefault,"scoreboard"),session)
         return("Successfully created a new game")
       } else return("Password is wrong try again")
     })
@@ -134,7 +131,7 @@ shinyServer(function(input, output, session) {
   
   #scoreboard
   formData_s <- reactive({
-    entry<-sapply(names(GetMetadata(scoreboardMeta)$fields), function(x) input[[x]])
+    entry<-sapply(GetMetadataNames(scoreboardMeta), function(x) input[[x]])
     default <- CreateDefaultRecord(scoreboardDefault,"scoreboard")[,!colnames(CreateDefaultRecord(scoreboardDefault,"scoreboard")) %in% names(entry)]
     c(entry,default)
   })
@@ -177,7 +174,7 @@ shinyServer(function(input, output, session) {
     input$new_game
     scoreboard()
   }, server = FALSE, selection = "single",
-  colnames = unname(GetMetadata(scoreboardMeta)$fields),options=list(order = list(0, 'desc'), scrollX = TRUE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE
+  colnames = GetMetadataValues(scoreboardMeta),options=list(order = list(0, 'desc'), scrollX = TRUE, autoWidth = FALSE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE
   ) 
   
   UpdateScoreboard(ScoreBoardCalc(),session)
@@ -194,7 +191,7 @@ shinyServer(function(input, output, session) {
 
   
   formData_o <- reactive({
-    entry<-sapply(names(GetMetadata(offenseMeta)$fields), function(x) input[[x]])
+    entry<-sapply(GetMetadataNames(offenseMeta), function(x) input[[x]])
     default <- CreateDefaultRecord(offenseDefault,"offense")[,!colnames(CreateDefaultRecord(offenseDefault,"offense")) %in% names(entry)]
     c(entry,default)
   })
@@ -237,7 +234,7 @@ shinyServer(function(input, output, session) {
     input$new_game
     offense()
   }, server = FALSE, selection = "single",
-  colnames = unname(GetMetadata(offenseMeta)$fields),options=list(order = list(0, 'desc'), scrollX = TRUE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE
+  colnames = GetMetadataValues(offenseMeta),options=list(order = list(0, 'desc'), scrollX = TRUE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE
   ) 
   
   
@@ -252,7 +249,7 @@ shinyServer(function(input, output, session) {
   
   
   formData_d <- reactive({
-    entry<-sapply(names(GetMetadata(defenseMeta)$fields), function(x) input[[x]])
+    entry<-sapply(GetMetadataNames(defenseMeta), function(x) input[[x]])
     default <- CreateDefaultRecord(defenseDefault,"defense")[,!colnames(CreateDefaultRecord(defenseDefault,"defense")) %in% names(entry)]
     c(entry,default)
   })
@@ -295,7 +292,7 @@ shinyServer(function(input, output, session) {
     input$new_game
     defense()
   }, server = FALSE, selection = "single",
-  colnames = unname(GetMetadata(defenseMeta)$fields),options=list(order = list(0, 'desc'), scrollX = TRUE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE
+  colnames = GetMetadataValues(defenseMeta),options=list(order = list(0, 'desc'), scrollX = TRUE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE
   ) 
   
   
@@ -324,7 +321,7 @@ shinyServer(function(input, output, session) {
   
   
   metaSelect <- function(odk){
-    if(odk=="O") return(unname(GetMetadata(driveSummaryMetaO)$fields)) else return(unname(GetMetadata(driveSummaryMetaD)$fields))
+    if(odk=="O") return(GetMetadataValues(driveSummaryMetaO)) else return(GetMetadataValues(driveSummaryMetaD))
   }
   
   output$drive_sum <- DT::renderDataTable({
