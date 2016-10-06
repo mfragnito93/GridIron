@@ -5,10 +5,12 @@
 # http://shiny.rstudio.com
 #
 
-# scoreboardData <- reactiveFileReader(1000,session,)
-
-
 shinyServer(function(input, output, session) {
+  ###Timers###
+  refreshDataTables <- reactiveTimer(1000,session)
+  
+  ##Data###
+  data <- reactivePoll(1000,session,GetMaxStamp,GetData)
   
   ###PRE-GAMe ENTRIES
   output$downloadCurrent  <- downloadHandler(
@@ -63,7 +65,7 @@ shinyServer(function(input, output, session) {
       paste('Current Plays', '.csv', sep='') 
     },
     content = function(file) {
-      write.csv(ReadData(), file, row.names = FALSE)
+      write.csv(GetData(), file, row.names = FALSE)
     }
   )
   
@@ -85,32 +87,32 @@ shinyServer(function(input, output, session) {
     inFile <- input$pd
     
     if (is.null(inFile))
-      return(ReadData())
+      return(data())
     
     read.csv(inFile$datapath,stringsAsFactors = FALSE)
     
   }, server = FALSE, selection = "single",options = list(scrollX = TRUE, autoWidth =TRUE), rownames = FALSE)
   
+  ##NEEDS TO BE UPDATED
   observeEvent(input$pd_submit,{
     inFile <- input$pd
-    plays <<- read.csv(inFile$datapath, stringsAsFactors = FALSE)
-    rownames(plays) <- plays[["id"]]
-    write.csv(plays, file = preSetPDPath, row.names = FALSE)
+   # plays <<- read.csv(inFile$datapath, stringsAsFactors = FALSE)
+    #rownames(plays) <- plays[["id"]]
+    #write.csv(plays, file = preSetPDPath, row.names = FALSE)
     output$pd_success <- renderText({
       req(input$pd_submit)
       "Your Plays have been succefully uploaded"
     })
   }, priority = 1)
   
-  #New Game
+  #New Game -- NEEDS to BE MODIFIED
   observeEvent(input$new_game,{
     output$pass_text <- renderText({
       if(isolate(input$password)=="oceanside"){
-        write.csv(plays, file =paste(playArchive,paste(gsub(":","-",Sys.time()),".csv", sep=""),sep=""), row.names = FALSE)
-        plays <<- rm(plays)
+        write.csv(GetData(), file =paste(playArchive,paste(gsub(":","-",Sys.time()),".csv", sep=""),sep=""), row.names = FALSE)
         #Create archive
-        plays <- read.csv(preSetPDTemplatePath, stringsAsFactors = FALSE)
-        write.csv(plays, file = preSetPDPath)
+        #plays <- read.csv(preSetPDTemplatePath, stringsAsFactors = FALSE)
+        #write.csv(plays, file = preSetPDPath)
         UpdateScoreboard(CreateDefaultRecord(),session)
         return("Successfully created a new game")
       } else return("Password is wrong try again")
@@ -119,6 +121,17 @@ shinyServer(function(input, output, session) {
   
   
   ###PLAY ENTRY
+  observe({
+    input$submit_s
+    input$submit_o
+    input$submit_d
+    input$delete_s
+    input$delete_o
+    input$delete_d
+    refreshDataTables()
+    UpdateNextPlay(session)  
+  })
+  
   #scoreboard
   formData_s <- reactive({
     entry<-sapply(names(GetMetadata(scoreboardMeta)$fields), function(x) input[[x]])
@@ -153,13 +166,16 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  scoreboard <- reactivePoll(1000,session,GetSStamp,ReadScore)
+  
+  
   # display table
   output$scoreboard <- DT::renderDataTable({
     input$submit_s
     input$delete_s
     input$pd_submit
     input$new_game
-    ReadData("scoreboard")
+    scoreboard()
   }, server = FALSE, selection = "single",
   colnames = unname(GetMetadata(scoreboardMeta)$fields),options=list(order = list(0, 'desc'), scrollX = TRUE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE
   ) 
@@ -211,13 +227,15 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  offense <- reactivePoll(1000,session,GetOStamp,ReadO)
+  
   # display table
   output$offense <- DT::renderDataTable({
     input$submit_o
     input$delete_o
     input$pd_submit
     input$new_game
-    ReadData("offense")
+    offense()
   }, server = FALSE, selection = "single",
   colnames = unname(GetMetadata(offenseMeta)$fields),options=list(order = list(0, 'desc'), scrollX = TRUE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE
   ) 
@@ -267,98 +285,18 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  defense <- reactivePoll(1000,session,GetDStamp,ReadD)
+  
   # display table
   output$defense <- DT::renderDataTable({
     input$submit_d
     input$delete_d
     input$pd_submit
     input$new_game
-    ReadData("defense")
+    defense()
   }, server = FALSE, selection = "single",
   colnames = unname(GetMetadata(defenseMeta)$fields),options=list(order = list(0, 'desc'), scrollX = TRUE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE
   ) 
-  
-  
-  
-  
-  
-  #come back to
-  # observe({
-  #   input$pd_submit
-  #   input$dd_submit
-  #   input$plays_rows_select
-  #   if(length(input$plays_rows_selected) > 0) UpdateTable(ReadData()[input$plays_rows_selected, ],session) else UpdateForm(input$ODK,session)
-  # })
-  # 
-  # 
-  # # input fields are treated as a group -- the row
-  # formData <- reactive({
-  #   entry<-sapply(names(GetMetadata(meta)$fields), function(x) input[[x]])
-  #   default <- CreateDefaultRecord()[,!colnames(CreateDefaultRecord()) %in% c(entry)]
-  #   c(entry,default)
-  # })
-  # 
-  # # Click "Submit" button -> save data
-  # observeEvent(input$submit, {
-  #   if (input$id != "0") {
-  #     UpdateData(formData())
-  #     UpdateScoreboard(ScoreBoardCalc(), session)
-  #     UpdateForm(input$ODK,session)
-  #   } else {
-  #     CreateData(formData())
-  #     UpdateScoreboard(ScoreBoardCalc(), session)
-  #     UpdateForm(input$ODK,session)
-  #   }
-  #   
-  # }, priority = 1)
-  # 
-  # # Press "New" button -> display empty record
-  # observeEvent(input$new, {
-  #   if(exists("plays")){
-  #     UpdateScoreboard(ScoreBoardCalc(), session)
-  #   } else UpdateScoreboard(CreateDefaultRecord(), session)
-  #   
-  #   UpdateForm(input$ODK, session)
-  # })
-  # 
-  # # Press "Delete" button -> delete from data
-  # observeEvent(input$delete, {
-  #   DeleteData(formData())
-  #   UpdateScoreboard(ScoreBoardCalc(), session)
-  #   UpdateForm(input$ODK, session)
-  #   write.csv(plays,preSetPDPath,row.names = FALSE)
-  # }, priority = 1)
-  # 
-  # # Select row in table -> show details in inputs
-  # observeEvent(input$plays_rows_selected, {
-  #   if (length(input$plays_rows_selected) > 0) {
-  #     data <- ReadData()[input$plays_rows_selected, ]
-  #     UpdateScoreboard(data,session)
-  #     UpdateTable(data,session)
-  #   }
-  #   
-  # })
-  # 
-  # 
-  # # display table
-  # output$plays <- DT::renderDataTable({
-  #   #update after submit is clicked
-  #   input$submit
-  #   #update after delete is clicked
-  #   input$delete
-  #   input$pd_submit
-  #   input$new_game
-  #   ReadData()
-  # }, server = FALSE, selection = "single",
-  # colnames = unname(GetMetadata(meta)$fields),options=list(order = list(0, 'desc'), scrollX = TRUE, autoWidth =TRUE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE
-  # ) 
-  # 
-  # UpdateScoreboard(ScoreBoardCalc(),session)
-  # 
-  
-  
-  
-  
   
   
   ###DRIVE SUMMARY
@@ -366,7 +304,7 @@ shinyServer(function(input, output, session) {
     input$submit
     input$delete
     input$pd_submit
-    selectInput("drive", "SELECT A DRIVE", choices = sort(unique(filter(ReadData(),ODK == input$drive_odk)$DRIVE),TRUE))
+    selectInput("drive", "SELECT A DRIVE", choices = sort(unique(filter(data(),ODK == input$drive_odk)$DRIVE),TRUE))
   })
   
   
@@ -374,14 +312,14 @@ shinyServer(function(input, output, session) {
     input$submit
     input$delete
     input$pd_submit
-    driveSummary(ReadData(),input$drive,input$drive_odk)
+    driveSummary(data(),input$drive,input$drive_odk)
   })
   
   theDrive <- reactive({
     input$submit
     input$delete
     input$pd_submit
-    drive(ReadData(),input$drive)
+    drive(data(),input$drive)
   })
   
   
@@ -441,7 +379,7 @@ shinyServer(function(input, output, session) {
     input$submit
     input$delete
     input$pd_submit
-    rpOnly(filter(ReadData(),ODK=="O"))
+    rpOnly(filter(data(),ODK=="O"))
   })
   
   #Opponent
@@ -449,7 +387,7 @@ shinyServer(function(input, output, session) {
     input$submit
     input$delete
     input$pd_submit
-    rpOnly(filter(ReadData(),ODK == "D"))
+    rpOnly(filter(data(),ODK == "D"))
   })
   
   output$oside <- reactive({
@@ -1653,17 +1591,7 @@ shinyServer(function(input, output, session) {
     plot.bars(getTable(filter(addFieldBucket(oSideD()),FIELD_BUCKET=="REDZONE"),c("PLAY_TYPE","HASH")), title = "Redzone", stack = "stack", showLegend = T)
   })
   
-  autoInvalidate <- reactiveTimer(5000, session)
 
- observeEvent(input$submit2,{
-      counter<<-counter+1
-      print(counter)
-     })
- 
- output$counte <- renderText({
-   autoInvalidate()
-    counter
- })
   
 })   
 

@@ -10,8 +10,8 @@ teamColors <- c('#87B5FF','#010014','#D3D3D3','#120b72', '#3932ff', '#133163')
 
 
 # d_tableMeta <- c(tableMeta, DEF_PLAY="DEF PLAY")
-idMap <- list("offense" = "id_o", "defense" = "id_d", "scoreboard" = "id")
-odkMap <- list("offense" = "ODK_O", "defense" = "ODK_D", "scoreboard" = "ODK")
+idMap <- list("scoreboard" = "id","offense" = "id_o", "defense" = "id_d")
+odkMap <- list("scoreboard" = "ODK","offense" = "ODK_O", "defense" = "ODK_D")
 
 scoreboardMeta <- c(id = "PLAY", ODK = "ODK", QTR ="QTR",DRIVE = "DRIVE", O_SCORE = "O SCORE", OPP_SCORE = "OPP SCORE", DN = "DN", DIST = "DIST", 
                     YARD_LN = "YDLN", SIDE = "SIDE", HASH = "HASH", PLAY_TYPE = "TYPE", RESULT = "RESULT", GN_LS = "GN LS")

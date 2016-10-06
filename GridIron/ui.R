@@ -39,7 +39,12 @@ body <- dashboardBody(
     tabItem(tabName = "play_entry",
             tabsetPanel(
               tabPanel("Scoreboard",
-                       fluidRow(column(width = 2, offset = 10, shinyjs::disabled(textInput("id", "PLAY", "0")))),
+                       fluidRow(
+                         column(width = 2, offset = 4, shinyjs::disabled(textInput("n_s_s", "SCOREBOARD", "1"))),
+                         column(width = 2, shinyjs::disabled(textInput("n_s_o", "OFFENSE", "1"))),
+                         column(width = 2, shinyjs::disabled(textInput("n_s_d", "DEFENSE", "1"))),
+                         column(width = 2, shinyjs::disabled(textInput("id", "PLAY", "0")))
+                       ),
                        fluidRow(column(width=12,h3("SCOREBOARD")),
                                 column(width = 3, column(width = 6, numericInput("DRIVE", "DRIVE", 0, min=1)),
                                        column(width = 6, selectInput("QTR","QTR", choices = c(1,2,3,4,5), selected = 1))),
@@ -65,7 +70,12 @@ body <- dashboardBody(
                                          actionButton("delete_s", "Delete")))),
                        fluidRow(column(width = 12,  DT::dataTableOutput("scoreboard")))
                        ),
-              tabPanel("Offense", column(width = 2, offset = 9, shinyjs::disabled(textInput("id_o", "PLAY", "0"))),
+              tabPanel("Offense", fluidRow(
+                       column(width = 2, offset = 4, shinyjs::disabled(textInput("n_o_s", "SCOREBOARD", "1"))),
+                       column(width = 2, shinyjs::disabled(textInput("n_o_o", "OFFENSE", "1"))),
+                       column(width = 2, shinyjs::disabled(textInput("n_o_d", "DEFENSE", "1"))),
+                       column(width = 2, shinyjs::disabled(textInput("id_o", "PLAY", "0")))
+                       ),
                        column(width = 12, 
                        fluidRow(h3("BOTH"),
                                 column(width = 2, radioButtons("ODK_O","SIDE",choices = c("O" = "O","D" = "D"),inline=TRUE)),
@@ -80,7 +90,12 @@ body <- dashboardBody(
                                        actionButton("delete_o", "Delete")))),
                        fluidRow(column(width = 12, column(width = 12, DT::dataTableOutput("offense"))))
                        ),
-              tabPanel("Defense", column(width = 2, offset = 9, shinyjs::disabled(textInput("id_d", "PLAY", "0"))),
+              tabPanel("Defense", fluidRow(
+                        column(width = 2, offset = 4, shinyjs::disabled(textInput("n_d_s", "SCOREBOARD", "1"))),
+                        column(width = 2, shinyjs::disabled(textInput("n_d_o", "OFFENSE", "1"))),
+                        column(width = 2, shinyjs::disabled(textInput("n_d_d", "DEFENSE", "1"))),
+                        column(width = 2, shinyjs::disabled(textInput("id_d", "PLAY", "0")))
+                        ),
                        column(width =12 ,
                        fluidRow(h3("BOTH"),
                                 column(width = 2, radioButtons("ODK_D","SIDE",choices = c("O" = "O","D" = "D"),inline=TRUE)),

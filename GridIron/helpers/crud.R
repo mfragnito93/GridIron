@@ -60,10 +60,10 @@ CastData <- function(data,type) {
       id_d = data["id_d"],
       ODK_D = data["ODK_D"],
       DEF_FORM = data["DEF_FORM"],
+      DEF_PLAY = data["DEF_PLAY"],
       COVERAGE = data["COVERAGE"],
       BLITZ = data["BLITZ"],
       FRONT = data["FRONT"],
-      DEF_PLAY = data["DEF_PLAY"],
       stringsAsFactors = FALSE)
     rownames(datar) <- data["id_d"]
   }
@@ -114,6 +114,7 @@ UpdateDefenseTable <- function(data, session){
 }
 
 UpdateOffenseForm <- function(odk, session){
+  updateTextInput(session, "id_o", value = "0")
   updateRadioButtons(session, "ODK_O","SIDE",choices = c("O" = "O","D" = "D"), inline = TRUE,selected = odk)
   selectListDD("PERSONNEL","O_PERSONNEL","D_PERSONNEL",odk,session,TRUE)
   selectListDD("OFF_FORM", "O_OFF_FORM", "D_OFF_FORM", odk,session,FALSE)
@@ -122,12 +123,25 @@ UpdateOffenseForm <- function(odk, session){
 }
 
 UpdateDefenseForm <- function(odk, session){
+  updateTextInput(session, "id_d", value = "0")
   updateRadioButtons(session, "ODK_D","SIDE",choices = c("O" = "O","D" = "D"), inline = TRUE,selected = odk)
   selectListDD("DEF_FORM", "O_DEF_FORM", "D_DEF_FORM", odk,session,FALSE)
   selectListDD("DEF_PLAY","", "D_DEF_PLAY", odk, session, FALSE)
   selectListDD("COVERAGE", "O_DEF_COVERAGE", "", odk, session, FALSE)
   selectListDD("BLITZ", "O_DEF_BLITZ", "", odk, session, FALSE)
   selectListDD("FRONT","O_DEF_FRONT", "", odk, session, FALSE)
+}
+
+UpdateNextPlay <- function(session){
+  updateTextInput(session, "n_s_s", "SCOREBOARD", value = GetNextId("scoreboard"))
+  updateTextInput(session, "n_s_o", "OFFENSE", value = GetNextId("offense"))
+  updateTextInput(session, "n_s_d", "DEFENSE", value = GetNextId("defense"))
+  updateTextInput(session, "n_o_s", "SCOREBOARD", value = GetNextId("scoreboard"))
+  updateTextInput(session, "n_o_o", "OFFENSE", value = GetNextId("offense"))
+  updateTextInput(session, "n_o_d", "DEFENSE", value = GetNextId("defense"))
+  updateTextInput(session, "n_d_s", "SCOREBOARD", value = GetNextId("scoreboard"))
+  updateTextInput(session, "n_d_o", "OFFENSE", value = GetNextId("offense"))
+  updateTextInput(session, "n_d_d", "DEFENSE", value = GetNextId("defense"))
 }
 
 updateODK <- function(){
@@ -180,7 +194,7 @@ NullToZero <- function(x){
 }
 
 GetNextId <- function(type) {
-  if (ReadData(type)$id[[1]]!="TEMP") {
+  if (ReadData(type)[1,1]!="TEMP") {
     max(as.integer(ReadData(type)[,idMap[[type]]])) + 1
   } else {
     return (1)
@@ -198,7 +212,9 @@ CreateData <- function(data,type) {
 
 #output curreent data frame does not return? 
 ReadData <- function(type) {
-  readCSV(dataPathMap[[type]],templatePathMap[[type]])
+  tmp <- readCSV(dataPathMap[[type]],templatePathMap[[type]])
+  tmp[,1] <- rownames(tmp)
+  return(tmp)
 }
 
 ###
@@ -236,3 +252,26 @@ EntryToCSV<-function(data,type){
   write.csv(data,dataPathMap[[type]],row.names = FALSE)
 }
 
+MergeData <- function(idMap,odkMap) {
+  tmp <- ReadData(names(idMap)[1])
+  for(type in 2:length(names(idMap))){
+    tmp<-merge(tmp,select(ReadData(names(idMap)[type]),-which(colnames(ReadData(names(idMap)[type]))==odkMap[names(idMap)[type]])),by =1)
+  }
+  return(tmp)
+}
+
+GetData <- function(){
+  return(MergeData(idMap,odkMap))
+}
+
+ReadScore <- function(){
+  return(ReadData("scoreboard"))
+}
+
+ReadO <- function(){
+  return(ReadData("offense"))
+}
+
+ReadD <- function(){
+  return(ReadData("defense"))
+}
