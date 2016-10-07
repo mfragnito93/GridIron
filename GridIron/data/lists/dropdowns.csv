@@ -1,14 +1,20 @@
-O_OFF_FORM,O_LINE,O_OFF_PLAY,D_DEF_FORM,O_DEF_FORM,O_DEF_FRONT,D_OFF_FORM,D_OFF_PLAY,D_DEF_PLAY,O_PERSONNEL,D_PERSONNEL,O_DEF_COVERAGE,O_DEF_BLITZ
-RIP,BIG,50 FERRARI L,'4-2,'3-4,OKIE,RIP,31 SPACING,WHITE,10,10,0,S
-LIZ,SMALL,BIG PITT,'3-4,'4-3,EVEN,LIZ,BIG COUNTER,BLUE,11,11,1,W
-LAZOR,30,SMALL SEATTLE,'4-2,'3-2,ODD,EVEN,SMALL TOSS,,12,12,2,M
-GOLD,31,BIG JET R,'5-2,'5-2,,,CIGAR,,20,20,3,MAM
-SILVER,50,31 NISSAN,Specify with a double ('') if you are using formations like 3-4. This prevents execl from changing it to a date,Specify with a double ('') if you are using formations like 3-4. This prevents execl from changing it to a date,,,,,21,21,4,SAW
-RAZOR,51,,,,,,,,22,22,3-MAN,WAM
-,,,,,,,,,23,23,2-MAN,SAM
-,,,,,,,,,NA,30,4-MAN,SMMW
-,,,,,,,,,NA,31,,SMW
-,,,,,,,,,NA,32,,
-,,,,,,,,,NA,0,,
-,,,,,,,,,NA,1,,
-,,,,,,,,,NA,2,,
+"O_OFF_FORM","O_LINE","O_OFF_PLAY","D_DEF_FORM","O_DEF_FORM","O_DEF_FRONT","D_OFF_FORM","D_OFF_PLAY","D_DEF_PLAY","O_PERSONNEL","D_PERSONNEL","O_DEF_COVERAGE","O_DEF_BLITZ"
+"EVEN","BIG","DALLAS","5-2","3-4","OKIE","ARMY R","DIVE OPT","WHITE","11","11","0","S"
+"RIP","SMALL","PITT","4-4","5-2","OTHER","ARMY L","VEER OPT","BLUE","10","21","1","W"
+"LOAD","30","BLAST","OTHER","OTHER","","OVER R","TRACE OPT","OTHER","20","10","2","M"
+"GOLD","31","SEATTLE","","","","OVER L","JET","","21","12","3","MAM"
+"SILVER","50","CHICAGO","","","","TRIPS RT","TOSS","","23","OTHER","4","SAW"
+"REX","51","HERO","","","","TRIPS LFT","POWER","","OTHER","","OTHER","WAM"
+"LEX","90","HONDA","","","","NAVY","BOOT","","","","","SAM"
+"RAZOR","91","BUBBLE","","","","PRO","OKLAHOMA","","","","","SMMW"
+"LAZOR","","APOLLO","","","","EVEN","STANFORD","","","","","SMW"
+"JUMBO","","NISSAN","","","","OTHER","LEAD","","","","",""
+"OTHER","","FERRARI","","","","","BELLY","","","","",""
+"","","CLEMSON","","","","","OTHER","","","","",""
+"","","SNAG","","","","","","","","","",""
+"","","SPACING","","","","","","","","","",""
+"","","SPLIT","","","","","","","","","",""
+"","","STICK","","","","","","","","","",""
+"","","SMOKE","","","","","","","","","",""
+"","","CIGAR","","","","","","","","","",""
+"","","OTHER","","","","","","","","","",""

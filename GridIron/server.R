@@ -174,12 +174,14 @@ shinyServer(function(input, output, session) {
     input$new_game
     scoreboard()
   }, server = FALSE, selection = "single",
-  colnames = GetMetadataValues(scoreboardMeta),options=list(order = list(0, 'desc'), scrollX = TRUE, autoWidth = FALSE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE
+  colnames = GetMetadataValues(scoreboardMeta),options=list(order = list(0, 'desc'), scrollX = TRUE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE
   ) 
-  
+
   UpdateScoreboard(ScoreBoardCalc(),session)
+  UpdateOffenseForm("D",session)
+  UpdateDefenseForm(updateODK(),session)
   
-  
+
   
   ######offense####
   observe({
@@ -199,21 +201,21 @@ shinyServer(function(input, output, session) {
   observeEvent(input$submit_o, {
     if (input$id_o != "0") {
       UpdateData(formData_o(),"offense")
-      UpdateOffenseForm(input$ODK_O,session)
+      UpdateOffenseForm(updateODK(),session)
     } else {
       CreateData(formData_o(),"offense")
-      UpdateOffenseForm(input$ODK_O,session)
+      UpdateOffenseForm(updateODK(),session)
     }
   }, priority = 1)
   
   observeEvent(input$new_o, {
     UpdateOffenseTable(CreateDefaultRecord(offenseDefault,"offense"),session)
-    UpdateOffenseForm(input$ODK_O,session)
+    UpdateOffenseForm(updateODK(),session)
   })
   
   observeEvent(input$delete_o, {
     DeleteData(formData_o(),"offense")
-    UpdateOffenseForm(input$ODK_O,session)
+    UpdateOffenseForm(updateODK(),session)
   }, priority = 1)
   
   # Select row in table -> show details in inputs
@@ -236,6 +238,8 @@ shinyServer(function(input, output, session) {
   }, server = FALSE, selection = "single",
   colnames = GetMetadataValues(offenseMeta),options=list(order = list(0, 'desc'), scrollX = TRUE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE
   ) 
+  
+  
   
   
   ####Defense###
@@ -294,6 +298,7 @@ shinyServer(function(input, output, session) {
   }, server = FALSE, selection = "single",
   colnames = GetMetadataValues(defenseMeta),options=list(order = list(0, 'desc'), scrollX = TRUE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE
   ) 
+  
   
   
   ###DRIVE SUMMARY

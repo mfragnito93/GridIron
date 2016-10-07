@@ -153,6 +153,15 @@ getDDList <- function(column){
   if(is.factor(l)) return(levels(l)) else return(l)
 }
 
+getDDByFreq <- function(name){
+  l<-as.character(colSort(getTable(GetData(),c(ddMap[name])),"value")[["Var1"]])
+  names(l) <- l
+  y <- getDDList(name)
+  x <- l[names(l) %in% y]
+  names(y) <- y
+  y <- y[!names(y) %in% x]
+  return(c(x,y))
+}
 
 selectList <- function(name,column_o,column_d,column_odk,data,session,int = FALSE){
   if(is.null(data)) updateSelectInput(session, name, gsub("_"," ",name), choices = getDDList(column_o) ,selected = NULL) else{
@@ -160,30 +169,30 @@ selectList <- function(name,column_o,column_d,column_odk,data,session,int = FALS
       if(column_o == ""){
       updateSelectInput(session, name, gsub("_"," ",name), choices = c("") ,selected = NULL)
       } else { 
-        updateSelectInput(session, name, gsub("_"," ",name), choices = getDDList(column_o) ,selected = if(int) as.integer(data[name]) else unname(data[name]))
+        updateSelectInput(session, name, gsub("_"," ",name), choices = getDDByFreq(column_o) ,selected = if(int) as.integer(data[name]) else unname(data[name]))
         }
     } else { 
       if(column_d == ""){
           updateSelectInput(session, name, gsub("_"," ",name), choices = c("") ,selected = NULL)
          }else{
-           updateSelectInput(session, name, gsub("_"," ",name), choices = getDDList(column_d) ,selected = if(int) as.integer(data[name]) else unname(data[name]))
+           updateSelectInput(session, name, gsub("_"," ",name), choices = getDDByFreq(column_d) ,selected = if(int) as.integer(data[name]) else unname(data[name]))
          } 
     }
 }}
 
 selectListDD <- function(name,column_o,column_d,odk,session,int = FALSE){
-  if(is.null(odk)) updateSelectInput(session, name, gsub("_"," ",name), choices = getDDList(column_o) ,selected = NULL) else{
+  if(is.null(odk)) updateSelectInput(session, name, gsub("_"," ",name), choices = getDDByFreq(column_o) ,selected = NULL) else{
     if(odk == "O") {
       if(column_o == ""){
         updateSelectInput(session, name, gsub("_"," ",name), choices = c("") ,selected = NULL)
       }else{
-        updateSelectInput(session, name, gsub("_"," ",name), choices = getDDList(column_o) ,selected = NULL)
+        updateSelectInput(session, name, gsub("_"," ",name), choices = getDDByFreq(column_o) ,selected = NULL)
       }
     } else {
       if(column_d==""){
         updateSelectInput(session, name, gsub("_"," ",name), choices = c("") ,selected = NULL)
       }else{
-        updateSelectInput(session, name, gsub("_"," ",name), choices = getDDList(column_d) ,selected = NULL)
+        updateSelectInput(session, name, gsub("_"," ",name), choices = getDDByFreq(column_d) ,selected = NULL)
       }
       
     }
@@ -302,4 +311,6 @@ DataSplit <- function(data,n = 2){
   s<-data[,c(GetMetadataNames(scoreboardMeta))]
   write.csv(s,dataPathMap[["scoreboard"]],row.names = FALSE)
 }
+
+
 

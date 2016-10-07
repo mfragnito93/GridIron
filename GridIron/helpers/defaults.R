@@ -67,3 +67,6 @@ preSetHeader <- c("O_OFF_FORM", "O_LINE","O_OFF_PLAY","D_DEF_FORM","O_DEF_FORM",
 
 preSetHeaderFriendly <- c("Team O Formations","Team O Blocking","Team O Plays","Team D Formations","Opp D Formations","Opp D Fronts","Opp O Formations","Opp O Plays","Team D Plays","Team O Personnel","Opp O Perssonel","Opp D Coverage","Opp D Blitz")
 
+ddMap <- c("O_OFF_FORM" = "OFF_FORM", "O_LINE" = "OLINE", "O_OFF_PLAY" = "OFF_PLAY", "D_DEF_FORM" = "DEF_FORM","O_DEF_FORM" = "DEF_FORM",
+            "O_DEF_FRONT" = "FRONT","D_OFF_FORM" = "OFF_FORM","D_OFF_PLAY" = "OFF_PLAY","D_DEF_PLAY" = "DEF_PLAY","O_PERSONNEL" = "PERSONNEL",
+            "D_PERSONNEL" = "PERSONNEL","O_DEF_COVERAGE" = "COVERAGE","O_DEF_BLITZ" = "BLITZ")
