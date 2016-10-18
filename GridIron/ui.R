@@ -7,30 +7,28 @@ sidebar <- dashboardSidebar(
                    image = "images/o.jpg"
   ),
   sidebarMenu(
-    menuItem("Play Entry",tabName = "play_entry", icon=icon("th-large")),
-    menuItem("Drive Summary", tabName = "drive_summary", icon = icon("th-large")),
-    menuItem("Offense", icon = icon("th-large"),
-             menuSubItem("Summary", icon = icon("th-large"), tabName = "o_summary"),
-             menuSubItem("Down", icon = icon("th-large"), tabName = "o_down"),
+    menuItem("Play Entry",tabName = "play_entry", icon=icon("pencil")),
+    menuItem("Drive Summary", tabName = "drive_summary", icon = icon("road", lib = "glyphicon")),
+    menuItem("Offense", icon = icon("dollar"),
+             menuSubItem("Summary", icon = icon("pie-chart"), tabName = "o_summary"),
+             menuSubItem("Down", icon = icon("bar-chart"), tabName = "o_down"),
              menuSubItem("Formation", icon = icon("th-large"), tabName = "o_formation"),
-             menuSubItem("Performance", icon = icon("th-large"), tabName = "o_performance")
+             menuSubItem("Performance", icon = icon("bullseye"), tabName = "o_performance")
              ),
-    menuItem("Defense", icon = icon("th-large"),
-             menuSubItem("Summary", icon = icon("th-large"), tabName = "d_summary"),
-             menuSubItem("Down", icon = icon("th-large"), tabName = "d_down"),
-             menuSubItem("Run Pass", icon = icon("th-large"), tabName = "d_rp"),
+    menuItem("Defense", icon = icon("ambulance"),
+             menuSubItem("Summary", icon = icon("pie-chart"), tabName = "d_summary"),
+             menuSubItem("Down", icon = icon("bar-chart"), tabName = "d_down"),
              menuSubItem("Formation", icon = icon("th-large"), tabName = "d_formation"),
-             menuSubItem("Personnel", icon = icon("th-large"), tabName = "d_personnel"),
-             menuSubItem("Plays", icon = icon("th-large"), tabName = "d_play")
+             menuSubItem("Performance", icon = icon("bullseye"), tabName = "d_performance")
              ),
-    menuItem("Film Room", tabName = "film_room", icon = icon("th-large"))
+    menuItem("Film Room", tabName = "film_room", icon = icon("beer"))
   )
 )
 
 body <- dashboardBody(
   tags$head(
-  tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")),
-   # tags$link(rel = "icon", type = "image/png", href = "images/starticont_Vwm_icon.ico")),
+  tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
+  tags$link(rel = "icon", type = "image/png", href = "images/helmet.jpg")),
   #fluidRow(column(width = 12, offset = 0,
                   #tags$img(src='images/mcfLong3.png', alt = 'MCF Capital Management')))
   #use shiny js to disable the ID field
@@ -247,40 +245,144 @@ body <- dashboardBody(
                             )
                      )
             ),
-    # tabItem(tabName = "d_summary",
-    #         h1("Summary"),
-    #         tabsetPanel(
-    #           tabPanel("Oceanside",fluidRow(
-    #             column(width = 9, br(),column(width = 12, plotlyOutput("os_rp")),
-    #                    column(width = 12, plotlyOutput("os_top_plays")),
-    #                    column(width = 12, plotlyOutput("os_top_pers")),
-    #                    column(width = 12, plotlyOutput("os_top_forms"))
-    #             ),
-    #             column(width = 3, br(),br(),br(),br(),
-    #                    column(width = 12, valueBoxOutput("os_first_downs")),
-    #                    column(width = 12, valueBoxOutput("os_total_yards")),
-    #                    column(width = 12, valueBoxOutput("os_total_plays")),
-    #                    column(width = 12, valueBoxOutput("os_yards_play")),
-    #                    column(width = 12, valueBoxOutput("os_run_yards")),
-    #                    column(width = 12, valueBoxOutput("os_pass_yards")),
-    #                    column(width = 12, valueBoxOutput("os_run_yards_play")),
-    #                    column(width = 12, valueBoxOutput("os_pass_yards_play")),
-    #                    column(width = 12, valueBoxOutput("os_completion_pct")),
-    #                    column(width = 12, valueBoxOutput("os_drives")),
-    #                    column(width = 12, valueBoxOutput("os_third_conv")),
-    #                    column(width = 12, valueBoxOutput("os_fourth_conv"))
-    #             )
-    #           )),
-    #           tabPanel("Defense",fluidRow(
-    #             column(width = 12, br(),plotlyOutput("os_def_form"),
-    #                    plotlyOutput("os_coverage"),
-    #                    plotlyOutput("os_front"),
-    #                    plotlyOutput("os_blitz")
-    #             )
-    #           )
-    #           ))
-    #         )
-    
+    tabItem(tabName = "d_summary",
+            h1("Summary"),
+            tabsetPanel(
+              tabPanel("Offense",fluidRow(
+                column(width = 9, br(),column(width = 12, plotlyOutput("des_rp_sum")),
+                       column(width = 12, plotlyOutput("des_top_plays")),
+                       column(width = 12, plotlyOutput("des_top_pers")),
+                       column(width = 12, plotlyOutput("des_top_forms"))
+                ),
+                column(width = 3, br(),br(),br(),br(),
+                       column(width = 12, valueBoxOutput("des_first_downs")),
+                       column(width = 12, valueBoxOutput("des_total_yards")),
+                       column(width = 12, valueBoxOutput("des_total_plays")),
+                       column(width = 12, valueBoxOutput("des_yards_play")),
+                       column(width = 12, valueBoxOutput("des_run_yards")),
+                       column(width = 12, valueBoxOutput("des_pass_yards")),
+                       column(width = 12, valueBoxOutput("des_run_yards_play")),
+                       column(width = 12, valueBoxOutput("des_pass_yards_play")),
+                       column(width = 12, valueBoxOutput("des_completion_pct")),
+                       column(width = 12, valueBoxOutput("des_drives")),
+                       column(width = 12, valueBoxOutput("des_third_conv")),
+                       column(width = 12, valueBoxOutput("des_fourth_conv"))
+                )
+              )),
+              tabPanel("Oceanside",fluidRow(
+                column(width = 12, br(),plotlyOutput("des_plays"),
+                       plotlyOutput("des_rp_play"),
+                       plotlyOutput("des_def_form"),
+                       plotlyOutput("des_rp_def_form")
+                )
+              )
+              )
+            )
+            ),
+    tabItem(tabName = "d_down",
+            fluidRow(column(width = 12, h1("Down and Distance Analysis"),
+                            tabsetPanel(
+                              tabPanel("Formation",
+                                       plotlyOutput("oo_off_form_dn"),
+                                       selectInput("off_form_dn", "SELECT A DOWN", choices = c("1","2","3","4")),
+                                       plotlyOutput("oo_off_form_dist")),
+                              tabPanel("Personnel",
+                                       plotlyOutput("oo_pers_dn"),
+                                       selectInput("pers_dn", "SELECT A DOWN", choices = c("1","2","3","4")),
+                                       plotlyOutput("oo_pers_dist")),
+                              tabPanel("Play",
+                                       plotlyOutput("oo_play_dn"),
+                                       selectInput("play_dn", "SELECT A DOWN", choices = c("1","2","3","4")),
+                                       plotlyOutput("oo_play_dist")),
+                              tabPanel("Run Pass", 
+                                       plotlyOutput("oo_rp_dn"),
+                                       selectInput("oo_rp_dn_a", "SELECT A DOWN", choices = c("1","2","3","4")),
+                                       plotlyOutput("oo_rp_dist")),
+                              tabPanel("Defense",
+                                       plotlyOutput("oo_avg_yds_dn"),
+                                       selectInput("oo_rp_yds_dn_a", "SELECT A DOWN", choices = c("1","2","3","4")),
+                                       plotlyOutput("oo_avg_yds_dist"))                                          
+                            )
+            )
+            )
+            
+            ),
+    tabItem(tabName = "d_formation",
+            fluidRow(column(width =12, h1("Formation Analysis"),
+                            tabsetPanel(
+                              tabPanel("Offense",
+                                       uiOutput("do_form_list"),
+                                       fluidRow(column(width = 3, valueBoxOutput("dfo_formation_count")),
+                                                column(width = 3, valueBoxOutput("dfo_formation_yards")),
+                                                column(width = 3, valueBoxOutput("dfo_formation_ryards")),
+                                                column(width = 3, valueBoxOutput("dfo_formation_pyards"))
+                                       ),
+                                       column(width = 6, plotlyOutput("dfo_rp")), #Runpass breakdown
+                                       column(width = 6, plotlyOutput("dfo_plays")) #Plays ran
+                                              
+                              ),
+                              tabPanel("Deffense",
+                                       uiOutput("dd_form_list"),
+                                       fluidRow(column(width = 3, valueBoxOutput("dfd_formations_count")),
+                                                column(width = 3, valueBoxOutput("dfd_formation_yards")),
+                                                column(width = 3, valueBoxOutput("dfd_formation_ryards")),
+                                                column(width = 3, valueBoxOutput("dfd_formation_pyards"))
+                                       ),
+                                       column(width = 6, plotlyOutput("dfd_rp"), #Run pass breakdown
+                                              plotlyOutput("dfd_formations")), #top 5 formations
+                                       column(width = 6, plotlyOutput("dfd_pers"), #personnel
+                                              plotlyOutput("dfd_plays")) #top 5 plays Ran
+                              )
+                            )
+            ))
+            
+            
+            ),
+    tabItem(tabName = "d_performance",
+            fluidRow(column(width = 12, h1("Performance Analysis")),
+                     tabsetPanel(
+                       tabPanel("Run Pass",
+                                br(),
+                                fluidRow(column(width = 3, valueBoxOutput("dperf_run")),
+                                         column(width = 3, valueBoxOutput("dperf_pass")),
+                                         column(width = 3, valueBoxOutput("dperf_run_avg")),
+                                         column(width = 3, valueBoxOutput("dperf_pass_avg"))
+                                ),
+                                column(width = 6, plotlyOutput("dperf_rp_form")),
+                                column(width = 6, plotlyOutput("dperf_rp_play"))),
+                       tabPanel("Personnel",
+                                column(width =12,
+                                       uiOutput("dperf_pers_list"),
+                                       fluidRow(column(width = 3, valueBoxOutput("dperf_run_pers")),
+                                                column(width = 3, valueBoxOutput("dperf_pass_pers")),
+                                                column(width = 3, valueBoxOutput("dperf_run_avg_pers")),
+                                                column(width = 3, valueBoxOutput("dperf_pass_avg_pers"))
+                                       ),
+                                       column(width = 6, plotlyOutput("dperf_pers_form")),
+                                       column(width = 6, plotlyOutput("dperf_pers_play")))),
+                       tabPanel("Formation",
+                                column(width =12,
+                                       uiOutput("dperf_form_list"),
+                                       fluidRow(column(width = 3, valueBoxOutput("dperf_run_form")),
+                                                column(width = 3, valueBoxOutput("dperf_pass_form")),
+                                                column(width = 3, valueBoxOutput("dperf_run_avg_form")),
+                                                column(width = 3, valueBoxOutput("dperf_pass_avg_form"))
+                                       ),
+                                       column(width = 6, plotlyOutput("dperf_form_form")),
+                                       column(width = 6, plotlyOutput("dperf_form_play")))),
+                       tabPanel("Play",
+                                column(width =12,
+                                       uiOutput("dperf_play_list"),
+                                       fluidRow(column(width = 3, valueBoxOutput("dperf_play_type")),
+                                                column(width = 3, valueBoxOutput("dperf_play_ran")),
+                                                column(width = 3, valueBoxOutput("dperf_play_yards")),
+                                                column(width = 3, valueBoxOutput("dperf_play_avg"))
+                                       ),
+                                       column(width = 6, plotlyOutput("dperf_play_form")),
+                                       column(width = 6, plotlyOutput("dperf_play_play"))))
+                     )
+            )
+    ),
     tabItem(tabName = "film_room",
             tabsetPanel(
               tabPanel("Data",
