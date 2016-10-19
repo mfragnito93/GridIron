@@ -64,18 +64,21 @@ body <- dashboardBody(
                                          ),
                                 fluidRow(#h3("PLAY INFO"),
                                         column(width = 3, selectInput("OFF_PLAY","OFF PLAY", choices = c(""), selected = NULL)),
-                                        column(width = 3, selectInput("DEF_PLAY", "DEF PLAY", choices = c(""), selected = NULL)),
+                                        column(width = 3, selectInput("OLINE","O-LINE", choices = c(""), selected = NULL)),
                                         column(width = 2, selectInput("COVERAGE", "COVERAGE", choices = c(""), selected = NULL)),
                                         column(width = 2, selectInput("BLITZ", "BLITZ", choices = c(""), selected = NULL)),
                                         column(width = 2, selectInput("FRONT", "FRONT", choices = c(""), selected = NULL))
-                                         ))
+                                         ),
+                                fluidRow(
+                                  column(width = 3, selectInput("DEF_PLAY", "DEF PLAY", choices = c(""), selected = NULL)),
+                                  column(width = 9 , column(width = 12, align = "right",
+                                                             br(),
+                                                             actionButton("submit", "Submit"),
+                                                             actionButton("new", "New"),
+                                                             actionButton("delete", "Delete")))
+                                )
+                                )
                      ),
-            fluidRow(
-              column(width = 12 , column(width = 12, align = "right",
-                  actionButton("submit", "Submit"),
-                  actionButton("new", "New"),
-                  actionButton("delete", "Delete")))
-              ),
               br(),
               br(),
             fluidRow(
@@ -208,18 +211,22 @@ body <- dashboardBody(
                                                          plotlyOutput("operf_rp_front"))),
                               tabPanel("Personnel",
                                        column(width =12,
-                                       uiOutput("operf_pers_list"),
-                                       fluidRow(column(width = 3, valueBoxOutput("operf_run_pers")),
-                                                column(width = 3, valueBoxOutput("operf_pass_pers")),
-                                                column(width = 3, valueBoxOutput("operf_run_avg_pers")),
-                                                column(width = 3, valueBoxOutput("operf_pass_avg_pers"))
+                                              br(),
+                                              fluidRow(column(width = 12, plotlyOutput("operf_top_pers"))),
+                                               uiOutput("operf_pers_list"),
+                                               fluidRow(column(width = 3, valueBoxOutput("operf_run_pers")),
+                                                        column(width = 3, valueBoxOutput("operf_pass_pers")),
+                                                        column(width = 3, valueBoxOutput("operf_run_avg_pers")),
+                                                        column(width = 3, valueBoxOutput("operf_pass_avg_pers"))
                                        ),
-                                       column(width = 6, plotlyOutput("operf_pers_form"),
-                                                         plotlyOutput("operf_pers_blitzes")),
-                                       column(width = 6, plotlyOutput("operf_pers_coverage"),
-                                                         plotlyOutput("operf_pers_front")))),
+                                               column(width = 6, plotlyOutput("operf_pers_form"),
+                                                                 plotlyOutput("operf_pers_blitzes")),
+                                               column(width = 6, plotlyOutput("operf_pers_coverage"),
+                                                                 plotlyOutput("operf_pers_front")))),
                               tabPanel("Formation",
                                        column(width =12,
+                                              br(),
+                                              fluidRow(column(width = 12, plotlyOutput("operf_top_forms"))),
                                               uiOutput("operf_form_list"),
                                               fluidRow(column(width = 3, valueBoxOutput("operf_run_form")),
                                                        column(width = 3, valueBoxOutput("operf_pass_form")),
@@ -230,8 +237,25 @@ body <- dashboardBody(
                                                      plotlyOutput("operf_form_blitzes")),
                                               column(width = 6, plotlyOutput("operf_form_coverage"),
                                                      plotlyOutput("operf_form_front")))),
+                              tabPanel("O-Line",
+                                       column(width =12,
+                                              br(),
+                                              fluidRow(column(width = 12, plotlyOutput("operf_top_olines"))),
+                                              uiOutput("operf_oline_list"),
+                                              fluidRow(column(width = 3, valueBoxOutput("operf_oline_type")),
+                                                       column(width = 3, valueBoxOutput("operf_oline_ran")),
+                                                       column(width = 3, valueBoxOutput("operf_oline_yards")),
+                                                       column(width = 3, valueBoxOutput("operf_oline_avg"))
+                                              ),
+                                              column(width = 6, plotlyOutput("operf_oline_form"),
+                                                     plotlyOutput("operf_oline_blitzes")),
+                                              column(width = 6, plotlyOutput("operf_oline_coverage"),
+                                                     plotlyOutput("operf_oline_front")))
+                                       ),
                               tabPanel("Play",
                                        column(width =12,
+                                              br(),
+                                              fluidRow(column(width = 12, plotlyOutput("operf_top_plays"))),
                                              uiOutput("operf_play_list"),
                                               fluidRow(column(width = 3, valueBoxOutput("operf_play_type")),
                                                        column(width = 3, valueBoxOutput("operf_play_ran")),
@@ -352,6 +376,8 @@ body <- dashboardBody(
                                 column(width = 6, plotlyOutput("dperf_rp_play"))),
                        tabPanel("Personnel",
                                 column(width =12,
+                                       br(),
+                                       fluidRow(column(width = 12, plotlyOutput("dperf_top_pers"))),
                                        uiOutput("dperf_pers_list"),
                                        fluidRow(column(width = 3, valueBoxOutput("dperf_run_pers")),
                                                 column(width = 3, valueBoxOutput("dperf_pass_pers")),
@@ -362,6 +388,8 @@ body <- dashboardBody(
                                        column(width = 6, plotlyOutput("dperf_pers_play")))),
                        tabPanel("Formation",
                                 column(width =12,
+                                       br(),
+                                       fluidRow(column(width = 12, plotlyOutput("dperf_top_forms"))),
                                        uiOutput("dperf_form_list"),
                                        fluidRow(column(width = 3, valueBoxOutput("dperf_run_form")),
                                                 column(width = 3, valueBoxOutput("dperf_pass_form")),
@@ -372,6 +400,8 @@ body <- dashboardBody(
                                        column(width = 6, plotlyOutput("dperf_form_play")))),
                        tabPanel("Play",
                                 column(width =12,
+                                       br(),
+                                       fluidRow(column(width = 12, plotlyOutput("dperf_top_plays"))),
                                        uiOutput("dperf_play_list"),
                                        fluidRow(column(width = 3, valueBoxOutput("dperf_play_type")),
                                                 column(width = 3, valueBoxOutput("dperf_play_ran")),
@@ -379,7 +409,21 @@ body <- dashboardBody(
                                                 column(width = 3, valueBoxOutput("dperf_play_avg"))
                                        ),
                                        column(width = 6, plotlyOutput("dperf_play_form")),
-                                       column(width = 6, plotlyOutput("dperf_play_play"))))
+                                       column(width = 6, plotlyOutput("dperf_play_play")))),
+                       tabPanel("Defense",
+                                column(width =12,
+                                       br(),
+                                       fluidRow(column(width = 12, plotlyOutput("dperf_top_dplays"))),
+                                       uiOutput("dperf_dplay_list"),
+                                       fluidRow(column(width = 3, valueBoxOutput("dperf_run_dplay")),
+                                                column(width = 3, valueBoxOutput("dperf_pass_dplay")),
+                                                column(width = 3, valueBoxOutput("dperf_run_avg_dplay")),
+                                                column(width = 3, valueBoxOutput("dperf_pass_avg_dplay"))
+                                       ),
+                                       column(width = 6, plotlyOutput("dperf_dplay_form")),
+                                       column(width = 6, plotlyOutput("dperf_dplay_pers")),
+                                       column(width = 12, plotlyOutput("dperf_dplay_play"))))
+                       
                      )
             )
     ),

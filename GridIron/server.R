@@ -133,6 +133,7 @@ shinyServer(function(input, output, session) {
     formData <- reactive({
       entry<-sapply(names(GetMetadata(meta)$fields), function(x) input[[x]])
       default <- CreateDefaultRecord()[,!colnames(CreateDefaultRecord()) %in% c(entry)]
+      print(c(entry,default))
       c(entry,default)
     })
     
@@ -223,7 +224,7 @@ shinyServer(function(input, output, session) {
       input$submit
       input$delete
       input$pd_submit
-      driveSummary(ReadData(),input$drive)
+      driveSummary(ReadData(),input$drive,input$drive_odk)
     })
     
     theDrive <- reactive({
@@ -234,13 +235,18 @@ shinyServer(function(input, output, session) {
     })
     
     
+    metaSelect <- function(odk){
+      if(odk=="O") return(unname(GetMetadata(driveSummaryMetaO)$fields)) else return(unname(GetMetadata(driveSummaryMetaD)$fields))
+    }
+    
     output$drive_sum <- DT::renderDataTable({
       input$submit
       input$delete
       input$pd_submit
-      drive_summary()
-    }, server = FALSE, selection = "single",
-    colnames = unname(GetMetadata(driveSummaryMeta)$fields),options=list(order = list(0, 'asc'), scrollX = FALSE, autoWidth = TRUE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE
+      input$drive_odk
+      datatable(drive_summary(),  selection = "single",
+                colnames = metaSelect(input$drive_odk), options=list(order = list(0, 'asc'), scrollX = FALSE, autoWidth = TRUE, sDom  = '<"top">rt<"bottom">ifp'),rownames = FALSE)
+    }, server = FALSE
     ) 
     
     #number of first downs
@@ -631,6 +637,9 @@ shinyServer(function(input, output, session) {
     })
     
     ##Personnel
+    output$operf_top_pers <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(oSide(),"PERSONNEL"), title = "Average YDs by Personnel", stack = "stack", showLegend = T)
+    })
     
     output$operf_pers_list <- renderUI({
       input$submit
@@ -686,6 +695,10 @@ shinyServer(function(input, output, session) {
     })
     
     ##FORMATION
+    output$operf_top_forms <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(oSide(),"OFF_FORM"), title = "Average YDs by Formation", stack = "stack", showLegend = T)
+    })
+    
     output$operf_form_list <- renderUI({
       input$submit
       input$delete
@@ -740,7 +753,71 @@ shinyServer(function(input, output, session) {
       plot.bars(rpYardsAvgByFactor(filter(oSide(), OFF_FORM == replaceNull(input$operf_form)),"FRONT"), title = "Average YDs Against Fronts", stack = "stack")
     })
     
+    ##OLINE
+    output$operf_top_olines <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(oSide(),"OLINE"), title = "Average YDs by Blocking Scheme", stack = "stack", showLegend = T)
+    })
+    
+    output$operf_oline_list <- renderUI({
+      input$submit
+      input$delete
+      input$pd_submit
+      selectInput("operf_oline", "SELECT A BLOCKING SCHEME", choices = unique(rpOnly(oSide())$OLINE), selected = unique(rpOnly(oSide())$OLINE)[1])
+    })
+    
+    
+    output$operf_oline_type <- renderValueBox({
+      valueBox(
+        filter(oSide(), OLINE == replaceNull(input$operf_oline))[1,"PLAY_TYPE"], "PLAY TYPE", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    output$operf_oline_ran <- renderValueBox({
+      valueBox(
+        length(filter(oSide(), OLINE == replaceNull(input$operf_oline))$GN_LS), "TOTAL RAN", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    
+    output$operf_oline_yards <- renderValueBox({
+      valueBox(
+        sum(filter(oSide(),OLINE == replaceNull(input$operf_oline))$GN_LS), "TOTAL YDS", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    output$operf_oline_avg <- renderValueBox({
+      valueBox(
+        round(mean(filter(oSide(),OLINE == replaceNull(input$operf_oline))$GN_LS),2), "YDS/PLAY", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    
+    output$operf_oline_form <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(filter(oSide(), OLINE == replaceNull(input$operf_oline)),"DEF_FORM"), title = "Average YDs Against Def Formations", showLegend = F)
+    })
+    
+    output$operf_oline_coverage <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(filter(oSide(), OLINE == replaceNull(input$operf_oline)),"COVERAGE"), title = "Average YDs Against Coverages", showLegend = F)
+    })
+    
+    output$operf_oline_blitzes <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(filter(oSide(), OLINE == replaceNull(input$operf_oline)),"BLITZ"), title = "Average YDs Against Blitzes", showLegend = F)
+    })
+    
+    output$operf_oline_front <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(filter(oSide(), OLINE == replaceNull(input$operf_oline)),"FRONT"), title = "Average YDs Against Fronts", showLegend = F)
+    })
+    
     ##PLAY
+    output$operf_top_plays <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(oSide(),"OFF_PLAY"), title = "Average YDs by Play", stack = "stack", showLegend = T)
+    })
+      
+    
     output$operf_play_list <- renderUI({
       input$submit
       input$delete
@@ -1123,6 +1200,9 @@ shinyServer(function(input, output, session) {
     
     
     ##Personnel
+    output$dperf_top_pers <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(oSideD(),"PERSONNEL"), title = "Average YDs by Personnel", stack = "stack", showLegend = T)
+    })
     
     output$dperf_pers_list <- renderUI({
       input$submit
@@ -1170,6 +1250,10 @@ shinyServer(function(input, output, session) {
     })
     
     ##FORMATION
+    output$dperf_top_forms <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(oSideD(),"OFF_FORM"), title = "Average YDs by Formation", stack = "stack", showLegend = T)
+    })
+    
     output$dperf_form_list <- renderUI({
       input$submit
       input$delete
@@ -1216,7 +1300,71 @@ shinyServer(function(input, output, session) {
       plot.bars(rpYardsAvgByFactor(filter(oSideD(), OFF_FORM == replaceNull(input$dperf_form)),"DEF_PLAY"), title = "Average YDs Against Def Play", stack = "stack")
     })
 
-    ##PLAY
+    ##DPLAY
+    output$dperf_top_dplays <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(oSideD(),"DEF_PLAY"), title = "Average YDs by Play", stack = "stack", showLegend = T)
+    })
+    
+    
+    output$dperf_dplay_list <- renderUI({
+      input$submit
+      input$delete
+      input$pd_submit
+      selectInput("dperf_dplay", "SELECT A PLAY", choices = unique(rpOnly(oSideD())$DEF_PLAY), selected = unique(rpOnly(oSideD())$DEF_PLAY)[1])
+    })
+    
+    
+    output$dperf_pass_dplay <- renderValueBox({
+      valueBox(
+        sum(filter(oSideD(), PLAY_TYPE == "PASS", DEF_PLAY == replaceNull(input$dperf_dplay))$GN_LS), "PASS YDS", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    
+    output$dperf_run_dplay <- renderValueBox({
+      valueBox(
+        sum(filter(oSideD(),PLAY_TYPE == "RUN", DEF_PLAY == replaceNull(input$dperf_dplay))$GN_LS), "RUN YDS", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    output$dperf_pass_avg_dplay <- renderValueBox({
+      valueBox(
+        round(mean(filter(oSideD(),PLAY_TYPE == "PASS", DEF_PLAY == replaceNull(input$dperf_dplay))$GN_LS),2), "PASS YDS/PLAY", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    
+    output$dperf_run_avg_dplay <- renderValueBox({
+      valueBox(
+        round(mean(filter(oSideD(),PLAY_TYPE == "RUN", DEF_PLAY == replaceNull(input$dperf_dplay))$GN_LS),2), "RUN YDS/PLAY", icon = icon("list"),
+        color = "black"
+      )
+    })
+    
+    output$dperf_dplay_form <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(filter(oSideD(), DEF_PLAY == replaceNull(input$dperf_dplay)),"OFF_FORM"), title = "Average YDs Against Off Formations", stack = "stack", showLegend = T)
+    })
+    
+    output$dperf_dplay_pers <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(filter(oSideD(), DEF_PLAY == replaceNull(input$dperf_dplay)),"PERSONNEL"), title = "Average YDs Against Personnel", stack = "stack", showLegend = T)
+    })
+    
+    output$dperf_dplay_play <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(filter(oSideD(), DEF_PLAY == replaceNull(input$dperf_dplay)),"OFF_PLAY"), title = "Average YDs Against Play", stack = "stack", showLegend = T)
+    })
+    
+
+    
+    
+    #OPLAY
+    output$dperf_top_plays <- renderPlotly({
+      plot.bars(rpYardsAvgByFactor(oSideD(),"OFF_PLAY"), title = "Average YDs by Play", stack = "stack", showLegend = T)
+    })
+    
+    
     output$dperf_play_list <- renderUI({
       input$submit
       input$delete
@@ -1262,6 +1410,7 @@ shinyServer(function(input, output, session) {
     output$dperf_play_play <- renderPlotly({
       plot.bars(rpYardsAvgByFactor(filter(oSideD(), OFF_PLAY == replaceNull(input$dperf_play)),"DEF_PLAY"), title = "Average YDs Against Def Play", showLegend = F)
     })
+    
     
 
     

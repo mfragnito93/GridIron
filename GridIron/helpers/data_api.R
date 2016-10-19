@@ -22,8 +22,10 @@ drive <- function(data,drive){
   return(filter(rpOnly(data),DRIVE==as.integer(drive)))
 }
 
-driveSummary <- function(data,drive){
-  return(select(drive(data,drive),id,DN,DIST,PERSONNEL,OFF_FORM,PLAY_TYPE,OFF_PLAY,DEF_FORM,COVERAGE,FRONT,BLITZ))
+driveSummary <- function(data,drive,odk){
+  if(odk=="O") return(select(drive(data,drive),id,DN,DIST,PERSONNEL,OFF_FORM,PLAY_TYPE,OLINE,OFF_PLAY,DEF_FORM,COVERAGE,FRONT,BLITZ)) else{
+    return(select(drive(data,drive),id,DN,DIST,PERSONNEL,OFF_FORM,PLAY_TYPE,OFF_PLAY,DEF_FORM,DEF_PLAY))
+  }
 }
 
 countFactor <- function(data,col,val){

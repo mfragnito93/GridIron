@@ -1,5 +1,6 @@
 #CRUD
 CastData <- function(data) {
+  print(data)
   datar <- data.frame(
     id = data["id"],
     ODK = data["ODK"], 
@@ -18,6 +19,7 @@ CastData <- function(data) {
     PLAY_TYPE = data["PLAY_TYPE"],
     RESULT = data["RESULT"],
     GN_LS = as.integer(data["GN_LS"]),
+    OLINE = data["OLINE"],
     OFF_PLAY = data["OFF_PLAY"],
     COVERAGE = data["COVERAGE"],
     BLITZ = data["BLITZ"],
@@ -54,6 +56,7 @@ UpdateTable <- function(data, session){
   selectList("PERSONNEL","O_PERSONNEL","D_PERSONNEL",data,session,TRUE)
   selectList("OFF_FORM", "O_OFF_FORM", "D_OFF_FORM", data,session,FALSE)
   selectList("DEF_FORM", "O_DEF_FORM", "D_DEF_FORM", data,session,FALSE)
+  selectList("OLINE","O_LINE","",data,session,FALSE)
   updateSelectInput(session, "PLAY_TYPE","PLAY TYPE", choices = c("RUN","PASS","SPECIAL"), selected = unname(data["PLAY_TYPE"]))
   updateSelectInput(session, "RESULT", "RESULT",  choices = c("RUSH","COMPLETE","INCOMPLETE","FUMBLE","INTERCEPTION","SPECIAL"), selected = unname(data["RESULT"]))
   updateTextInput(session, "GN_LS", value = unname(data["GN_LS"]))
@@ -68,6 +71,7 @@ UpdateForm <- function(odk, session){
   selectListDD("PERSONNEL","O_PERSONNEL","D_PERSONNEL",odk,session,TRUE)
   selectListDD("OFF_FORM", "O_OFF_FORM", "D_OFF_FORM", odk,session,FALSE)
   selectListDD("DEF_FORM", "O_DEF_FORM", "D_DEF_FORM", odk,session,FALSE)
+  selectListDD("OLINE", "O_LINE","",odk,session,FALSE)
   selectListDD("OFF_PLAY","O_OFF_PLAY","D_OFF_PLAY", odk, session, FALSE)
   selectListDD("DEF_PLAY","", "D_DEF_PLAY", odk, session, FALSE)
   selectListDD("COVERAGE", "O_DEF_COVERAGE", "", odk, session, FALSE)
